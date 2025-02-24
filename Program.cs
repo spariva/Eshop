@@ -11,8 +11,10 @@ builder.Services.AddMemoryCache();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 
+//string connectionString =
+//    builder.Configuration.GetConnectionString("SqlClase");
 string connectionString =
-    builder.Configuration.GetConnectionString("SqlClase");
+    builder.Configuration.GetConnectionString("SqlMaki");
 
 builder.Services.AddTransient<RepositoryUsers>();
 
@@ -20,6 +22,8 @@ builder.Services.AddTransient<RepositoryUsers>();
 builder.Services.AddDbContext<EshopContext>
     (options => options.UseSqlServer(connectionString));
 
+
+builder.Services.AddAntiforgery();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

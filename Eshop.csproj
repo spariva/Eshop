@@ -13,8 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
-    <Folder Include="wwwroot\Images\" />
+    <Folder Include="wwwroot\images\general\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\Shared\_Layout2.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

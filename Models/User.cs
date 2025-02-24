@@ -7,6 +7,7 @@ namespace Eshop.Models
     public class User
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("USER_ID")]
         public int Id { get; set; }
         [Column("NAME")]
