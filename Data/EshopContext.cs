@@ -8,5 +8,6 @@ namespace Eshop.Data
         public EshopContext(DbContextOptions<EshopContext> options): base(options) {  }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Store> Stores { get; set; }
     }
 }

@@ -17,6 +17,7 @@ string connectionString =
     builder.Configuration.GetConnectionString("SqlMaki");
 
 builder.Services.AddTransient<RepositoryUsers>();
+builder.Services.AddTransient<RepositoryStores>();
 
 
 builder.Services.AddDbContext<EshopContext>
