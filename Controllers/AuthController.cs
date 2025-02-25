@@ -2,9 +2,9 @@
 
 namespace Eshop.Controllers
 {
-    public class CartController : Controller
+    public class AuthController : Controller
     {
-        public IActionResult Cart()
+        public IActionResult Index()
         {
             return View();
         }

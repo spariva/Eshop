@@ -18,5 +18,17 @@ namespace Eshop.Controllers
             List<Store> stores = await this.repoStores.GetStoresAsync();
             return View(stores);
         }
+
+        //public async Task<IActionResult> Details(int id)
+        //{
+        //    Store store = await this.repoStores.FindStoreAsync(id);
+        //    return View(store);
+        //}
+
+        public async Task<IActionResult> ProductList()
+        {
+            List<Store> stores = await this.repoStores.GetStoresAsync();
+            return View(stores);
+        }
     }
 }

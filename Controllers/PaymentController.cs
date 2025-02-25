@@ -2,9 +2,9 @@
 
 namespace Eshop.Controllers
 {
-    public class CartController : Controller
+    public class PaymentController : Controller
     {
-        public IActionResult Cart()
+        public IActionResult Checkout()
         {
             return View();
         }
