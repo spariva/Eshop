@@ -7,7 +7,6 @@ namespace Eshop.Models
     public class Product
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("PRODUCT_ID")]
         public int Id { get; set; }
 

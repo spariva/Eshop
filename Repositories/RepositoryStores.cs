@@ -20,6 +20,14 @@ namespace Eshop.Repositories
             return await consulta.ToListAsync();
         }
 
+        public async Task<Store> FindStoreAsync(int idStore)
+        {
+            var consulta = from datos in this.context.Stores
+                           where datos.Id == idStore
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+
 
     }
 }
