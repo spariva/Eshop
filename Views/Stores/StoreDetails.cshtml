@@ -1,0 +1,27 @@
+﻿@model StoreView
+
+
+<div>
+    <h2>@Model.Store.Name</h2>
+    <p>Email: @Model.Store.Email</p>
+    <p>Category: @Model.Store.Category</p>
+    <img src="@Model.Store.Image" alt="Store Image" />
+
+    <h3>Products</h3>
+    @if (Model.Products.Count == 0)
+    {
+        <p>No products available</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (Product product in Model.Products)
+            {
+                <li>
+                    <strong>@product.Name</strong>
+                    <p>Price: @product.Price</p>
+                </li>
+            }
+        </ul>
+    })
+</div>

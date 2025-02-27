@@ -21,10 +21,6 @@ namespace Eshop.Models
         public string Telephone { get; set; }
         [Column("ADDRESS")]
         public string Address { get; set; }
-        [Column("CREATED_AT")]
-        public DateTime CreatedAt { get; set; }
-        [Column("UPDATE_AT")]
-        public DateTime UpdatedAt { get; set; }
 
     }
 }

@@ -14,7 +14,7 @@ namespace Eshop.Models
         public int StoreId { get; set; }
 
         [Column("PRODUCT_NAME")]
-        public string ProductName { get; set; }
+        public string Name { get; set; }
 
         [Column("DESCRIPTION")]
         public string Description { get; set; }
@@ -27,14 +27,5 @@ namespace Eshop.Models
 
         [Column("STOCK_QUANTITY")]
         public int StockQuantity { get; set; }
-
-        [Column("CREATED_AT")]
-        public DateTime CreatedAt { get; set; }
-
-        [Column("UPDATED_AT")]
-        public DateTime UpdatedAt { get; set; }
-
-        [Column("StoreId")]
-        public Store Store { get; set; }
     }
 }

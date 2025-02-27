@@ -14,7 +14,7 @@ builder.Services.AddSession();
 //string connectionString =
 //    builder.Configuration.GetConnectionString("SqlClase");
 string connectionString =
-    builder.Configuration.GetConnectionString("SqlMaki");
+    builder.Configuration.GetConnectionString("Sql");
 
 builder.Services.AddTransient<RepositoryUsers>();
 builder.Services.AddTransient<RepositoryStores>();
