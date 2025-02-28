@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 
 namespace Eshop.Helpers
 {
-    public enum Folder { Images, Uploads, Temporal }
+    public enum Folder { General, Products, Stores }
     public class HelperPathProvider
     {
         private IWebHostEnvironment hostEnvironment;
@@ -28,14 +28,14 @@ namespace Eshop.Helpers
             string carpeta = "";
             switch (folder)
             {
-                case Folder.Images:
-                    carpeta = "images";
+                case Folder.General:
+                    carpeta = "images/general";
                     break;
-                case Folder.Uploads:
-                    carpeta = "uploads";
+                case Folder.Products:
+                    carpeta = "images/products";
                     break;
-                case Folder.Temporal:
-                    carpeta = "temporal";
+                case Folder.Stores:
+                    carpeta = "images/stores";
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(folder), folder, null);

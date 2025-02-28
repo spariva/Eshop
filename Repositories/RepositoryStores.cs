@@ -13,7 +13,7 @@ namespace Eshop.Repositories
             this.context = context;
         }
 
-
+#region Stores
         public async Task<List<Store>> GetStoresAsync()
         {
             var consulta = from datos in this.context.Stores
@@ -47,6 +47,26 @@ namespace Eshop.Repositories
             return storeView;
         }
 
+        public async Task<Store> InsertStoreAsync(string name, string email, string image, string category)
+        {
+            int maxId = await this.context.Stores.MaxAsync(x => x.Id);
+
+            Store s = new Store
+            {
+                Id = maxId + 1,
+                Name = name,
+                Email = email,
+                Image = image,
+                Category = category
+            };
+
+            await this.context.Stores.AddAsync(s);
+            await this.context.SaveChangesAsync();
+            return s;
+        }
+
+        #endregion
+
 
         public async Task<List<Product>> GetProductsAsync(int idStore)
         {
@@ -56,25 +76,6 @@ namespace Eshop.Repositories
 
             return await consulta.ToListAsync();
         }
-
-
-        //public async Task InsertarCuboAsync(string nombre, string modelo, string marca, string imagen, int precio)
-        //{
-        //    int maxId = await this.context.Cubos.MaxAsync(x => x.IdCubo);
-
-        //    Cubo c = new Cubo
-        //    {
-        //        IdCubo = maxId + 1,
-        //        Nombre = nombre,
-        //        Modelo = modelo,
-        //        Marca = marca,
-        //        Imagen = imagen,
-        //        Precio = precio
-        //    };
-
-        //    await this.context.Cubos.AddAsync(c);
-        //    await this.context.SaveChangesAsync();
-        //}
 
     }
 }

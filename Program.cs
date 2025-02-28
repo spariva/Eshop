@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<HelperPathProvider>();
+builder.Services.AddSingleton<HelperToolkit>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddDistributedMemoryCache();
@@ -23,8 +24,11 @@ builder.Services.AddTransient<RepositoryStores>();
 builder.Services.AddDbContext<EshopContext>
     (options => options.UseSqlServer(connectionString));
 
-
+builder.Services.AddSession();
+builder.Services.AddMemoryCache();
 builder.Services.AddAntiforgery();
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -38,12 +42,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
 app.UseSession();
 
+app.UseStaticFiles();
 app.MapStaticAssets();
 
 app.MapControllerRoute(
