@@ -27,5 +27,8 @@ namespace Eshop.Models
 
         [Column("STOCK_QUANTITY")]
         public int StockQuantity { get; set; }
+
+        // Navigation property for the many-to-many relationship
+        public List<ProdCat> ProdCats { get; set; } = new List<ProdCat>();
     }
 }

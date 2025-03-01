@@ -36,12 +36,25 @@ namespace Eshop.Repositories
                 return null;
             }
 
-            List<Product> products = await this.GetProductsAsync(idStore);
+            // Get the products for the store, including their ProdCats and Categories
+            List<Product> products = await this.context.Products
+                .Where(p => p.StoreId == idStore) // Filter by store ID
+                .Include(p => p.ProdCats) // Include ProdCats
+                .ThenInclude(pc => pc.Category) // Include Category for each ProdCat
+                .ToListAsync();
 
+            // Get distinct category names for the filter list
+            var categoryNames = products
+                .SelectMany(p => p.ProdCats.Select(pc => pc.Category.CategoryName))
+                .Distinct()
+                .ToList();
+
+            // Create the StoreView
             StoreView storeView = new StoreView()
             {
                 Store = store,
-                Products = products
+                Products = products,
+                ProdCategories = categoryNames
             };
 
             return storeView;
@@ -73,6 +86,19 @@ namespace Eshop.Repositories
             var consulta = from datos in this.context.Products
                            where datos.StoreId == idStore
                            select datos;
+
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<List<string>> GetProductsCategoriesAsync(List<int> productsIds)
+        {
+            var consulta = this.context.ProdCats
+                .Where(pc => productsIds.Contains(pc.ProductId))
+                .Join(this.context.Categories,
+                    pc => pc.CategoryId,
+                    c => c.Id,
+                    (pc, c) => c.CategoryName)
+                .Distinct();
 
             return await consulta.ToListAsync();
         }

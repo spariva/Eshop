@@ -1,8 +1,8 @@
-﻿using Eshop.Helpers;
+﻿using Eshop.Data;
+using Eshop.Helpers;
 using Eshop.Models;
 using Eshop.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace Eshop.Controllers
 {
@@ -11,7 +11,7 @@ namespace Eshop.Controllers
         private RepositoryStores repoStores;
         private HelperPathProvider helperPath;
 
-        public StoresController(RepositoryStores repoStores, HelperPathProvider) 
+        public StoresController(RepositoryStores repoStores, HelperPathProvider helperPath) 
         {
             this.repoStores = repoStores;
             this.helperPath = helperPath;
@@ -21,21 +21,23 @@ namespace Eshop.Controllers
         public async Task<IActionResult> Stores()
         {
             List<Store> stores = await this.repoStores.GetStoresAsync();
+            ViewBag.Categories = stores.Select(x => x.Category).Distinct().ToList();
             return View(stores);
         }
 
         public async Task<IActionResult> StoreDetails(int id)
         {
-            //Find store and add their products
+            //Find store and add their products loading the ProdCats and Categories
             StoreView storeView = await this.repoStores.FindStoreAsync(id);
             if (storeView == null)
             {
                 return RedirectToAction("Stores");
             }
+
             return View(storeView);
         }
 
-        public async Task<IActionResult> StoreCreate()
+        public IActionResult StoreCreate()
         {
             return View();
         }
