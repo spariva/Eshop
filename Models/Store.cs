@@ -21,5 +21,7 @@ namespace Eshop.Models
 
         [Column("CATEGORY")]
         public string Category { get; set; }
+        [Column("USER_ID")]
+        public int UserId { get; set; }
     }
 }

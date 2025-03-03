@@ -20,6 +20,7 @@
     <h2>@Model.Store.Name</h2>
     <p>Email: @Model.Store.Email</p>
     <p>Category: @Model.Store.Category</p>
+    <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id">Update store</a>
     <img src="~/images/stores/@Model.Store.Image" alt="Store Image" />
 
     <h3>Products</h3>

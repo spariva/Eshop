@@ -1,5 +1,6 @@
 ﻿using Eshop.Data;
 using Eshop.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eshop.Repositories
@@ -21,6 +22,21 @@ namespace Eshop.Repositories
             return await consulta.ToListAsync();
         }
 
+        public async Task<Store> FindSimpleStoreAsync(int idStore)
+        {
+            var consulta = from datos in this.context.Stores
+                           where datos.Id == idStore
+                           select datos;
+
+            Store store = await consulta.FirstOrDefaultAsync();
+
+            if (store == null)
+            {
+                return null;
+            }
+
+            return store;
+        }
 
         public async Task<StoreView> FindStoreAsync(int idStore)
         {
@@ -60,6 +76,7 @@ namespace Eshop.Repositories
             return storeView;
         }
 
+
         public async Task<Store> InsertStoreAsync(string name, string email, string image, string category)
         {
             int maxId = await this.context.Stores.MaxAsync(x => x.Id);
@@ -70,7 +87,8 @@ namespace Eshop.Repositories
                 Name = name,
                 Email = email,
                 Image = image,
-                Category = category
+                Category = category,
+                UserId = 1
             };
 
             await this.context.Stores.AddAsync(s);
@@ -78,9 +96,26 @@ namespace Eshop.Repositories
             return s;
         }
 
+        public async Task<Store> UpdateStoreAsync(int id, string name, string email, string image, string category)
+        {
+            Store s = await this.FindSimpleStoreAsync(id);
+
+            if (s == null)
+            {
+                return null;
+            }
+
+            s.Name = name;
+            s.Email = email;
+            s.Image = image;
+            s.Category = category;
+            await this.context.SaveChangesAsync();
+            return s;
+        }
+
         #endregion
 
-
+        #region products
         public async Task<List<Product>> GetProductsAsync(int idStore)
         {
             var consulta = from datos in this.context.Products
@@ -102,6 +137,8 @@ namespace Eshop.Repositories
 
             return await consulta.ToListAsync();
         }
+
+        #endregion
 
     }
 }

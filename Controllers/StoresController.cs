@@ -47,7 +47,9 @@ namespace Eshop.Controllers
         {
             //Create route and save image
             string fileName = image.FileName;
+
             string path = this.helperPath.MapPath(fileName, Folder.Stores);
+
             using (Stream stream = new FileStream(path, FileMode.Create))
             {
                 await image.CopyToAsync(stream);
@@ -57,6 +59,36 @@ namespace Eshop.Controllers
             Store store = await this.repoStores.InsertStoreAsync(name, email, fileName, category.ToUpper());
 
             return RedirectToAction("StoreDetails", new {id = store.Id} );
+        }
+
+        public async Task<IActionResult> StoreEdit(int id)
+        {
+            Store store = await this.repoStores.FindSimpleStoreAsync(id);
+            return View(store);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> StoreEdit(int id, string name, string email, IFormFile image, string oldimage, string category)
+        {
+            //Update image
+            if (image != null)
+            {
+                string fileName = image.FileName;
+                string path = this.helperPath.MapPath(fileName, Folder.Stores);
+                using (Stream stream = new FileStream(path, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                await this.repoStores.UpdateStoreAsync(id, name, email, fileName, category);
+
+            }
+            else
+            {
+                await this.repoStores.UpdateStoreAsync(id, name, email, oldimage, category);
+            }
+
+            return RedirectToAction("StoreDetails", new { id = id });
         }
 
 
