@@ -3,6 +3,7 @@ using Eshop.Helpers;
 using Eshop.Models;
 using Eshop.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Eshop.Controllers
 {
@@ -131,23 +132,55 @@ namespace Eshop.Controllers
 
         public async Task<IActionResult> ProductCreate()
         {
-            
+            List<Category> categories= await this.repoStores.GetAllCategoriesAsync();
+            ViewBag.Productcategories = categories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.CategoryName
+            }).ToList();
+
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProductCreate(string name, string description, IFormFile image, float price, int stock)
+        public async Task<IActionResult> ProductCreate(string name, string description, IFormFile image, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories)
         {
-            //Create route and save image
-            string fileName = image.FileName;
-            string path = this.helperPath.MapPath(fileName, Folder.Products);
-            using (Stream stream = new FileStream(path, FileMode.Create))
+            if (ModelState.IsValid)
             {
-                await image.CopyToAsync(stream);
+                // Save the image
+                string fileName = image.FileName;
+                string path = this.helperPath.MapPath(fileName, Folder.Products);
+                using (Stream stream = new FileStream(path, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                // Handle new categories
+                if (!string.IsNullOrEmpty(newCategories))
+                {
+                    var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).ToList();
+                    foreach (var categoryName in newCategoryNames)
+                    {
+                        var category = await this.repoStores.FindOrCreateCategoryAsync(categoryName);
+                        selectedCategories.Add(category.Id);
+                    }
+                }
+
+                // Insert the product
+                var product = await this.repoStores.InsertProductAsync(name, description, fileName, price, stockQuantity, selectedCategories);
+
+                return RedirectToAction("ProductDetails", new { id = product.Id });
             }
-            //Insert product
-            Product product = await this.repoStores.InsertProductAsync(name, description, price, stock, fileName);
-            return RedirectToAction("ProductDetails", new { id = product.Id });
+
+            // If we got this far, something failed; re-populate the categories
+            var categories = await this.repoStores.GetAllCategoriesAsync();
+            ViewBag.Categories = categories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.CategoryName
+            }).ToList();
+
+            return View();
         }
 
 

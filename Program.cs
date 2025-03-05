@@ -12,10 +12,10 @@ builder.Services.AddMemoryCache();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 
-//string connectionString =
-//    builder.Configuration.GetConnectionString("SqlClase");
 string connectionString =
-    builder.Configuration.GetConnectionString("Sql");
+    builder.Configuration.GetConnectionString("SqlClase");
+//string connectionString =
+//    builder.Configuration.GetConnectionString("Sql");
 
 builder.Services.AddTransient<RepositoryUsers>();
 builder.Services.AddTransient<RepositoryStores>();

@@ -175,7 +175,7 @@ namespace Eshop.Repositories
             return await consulta.FirstOrDefaultAsync();
         }
 
-        public async Task<Product> InsertProductAsync(string name, string description, string image, float price, int stock, List<int> categories)
+        public async Task<Product> InsertProductAsync(string name, string description, string image, decimal price, int stock, List<int> categories)
         {
             int maxId = await this.context.Products.MaxAsync(x => x.Id);
             Product p = new Product
@@ -202,6 +202,40 @@ namespace Eshop.Repositories
             }
             await this.context.SaveChangesAsync();
             return p;
+        }
+
+        public async Task<List<Category>> GetAllCategoriesAsync()
+        {
+            var consulta = from datos in this.context.Categories
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<Category> FindOrCreateCategoryAsync(string categoryName)
+        {
+            var category = await this.context.Categories.FirstOrDefaultAsync(c => c.CategoryName == categoryName.ToUpper());
+            int maxId = await this.context.Categories.MaxAsync(x => x.Id);
+            if (category == null)
+            {
+                category = new Category { Id = (maxId + 1) , CategoryName = categoryName};
+                this.context.Categories.Add(category);
+                await this.context.SaveChangesAsync();
+            }
+            return category;
+        }
+
+        public async Task AddCategoryToProductAsync(int productId, int categoryId)
+        {
+            var prodCat = new ProdCat { ProductId = productId, CategoryId = categoryId };
+            this.context.ProdCats.Add(prodCat);
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task RemoveCategoryToProductAsync(int productId, int categoryId)
+        {
+            var prodCat = await this.context.ProdCats.FirstOrDefaultAsync(pc => pc.ProductId == productId && pc.CategoryId == categoryId);
+            this.context.ProdCats.Remove(prodCat);
+            await this.context.SaveChangesAsync();
         }
 
         #endregion
