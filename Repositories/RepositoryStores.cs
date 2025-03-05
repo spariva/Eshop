@@ -113,9 +113,16 @@ namespace Eshop.Repositories
             return s;
         }
 
+        public async Task DeleteStoreAsync(int id)
+        {
+            Store s = await this.FindSimpleStoreAsync(id);
+            this.context.Stores.Remove(s);
+            await this.context.SaveChangesAsync();
+        }
+
         #endregion
 
-        #region products
+#region products
         public async Task<List<Product>> GetProductsAsync(int idStore)
         {
             var consulta = from datos in this.context.Products
@@ -137,6 +144,67 @@ namespace Eshop.Repositories
 
             return await consulta.ToListAsync();
         }
+
+        #region CRUD Products
+        public async Task<List<Product>> GetAllProductsAsync()
+        {
+            var consulta = from datos in this.context.Products
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+
+        public async Task<Product> FindProductAsync(int idProduct)
+        {
+            var consulta = from datos in this.context.Products
+                           where datos.Id == idProduct
+                           select datos;
+            return await consulta.FirstOrDefaultAsync();
+        }
+
+        public async Task<Product> SearchProductNameAsync(string name)
+        {
+            var consulta = from datos in this.context.Products
+                           where datos.Name == name
+                           select datos;
+            if (consulta == null)
+            {
+                return null;
+            }
+
+            return await consulta.FirstOrDefaultAsync();
+        }
+
+        public async Task<Product> InsertProductAsync(string name, string description, string image, float price, int stock, List<int> categories)
+        {
+            int maxId = await this.context.Products.MaxAsync(x => x.Id);
+            Product p = new Product
+            {
+                Id = maxId + 1,
+                StoreId = 1,
+                Name = name,
+                Description = description,
+                Image = image,
+                Price = price,
+                StockQuantity = stock
+            };
+            await this.context.Products.AddAsync(p);
+            await this.context.SaveChangesAsync();
+
+            foreach (int cat in categories)
+            {
+                ProdCat pc = new ProdCat
+                {
+                    ProductId = p.Id,
+                    CategoryId = cat
+                };
+                await this.context.ProdCats.AddAsync(pc);
+            }
+            await this.context.SaveChangesAsync();
+            return p;
+        }
+
+        #endregion
 
         #endregion
 

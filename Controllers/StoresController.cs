@@ -70,25 +70,47 @@ namespace Eshop.Controllers
         [HttpPost]
         public async Task<IActionResult> StoreEdit(int id, string name, string email, IFormFile image, string oldimage, string category)
         {
-            //Update image
-            if (image != null)
+            try
             {
-                string fileName = image.FileName;
-                string path = this.helperPath.MapPath(fileName, Folder.Stores);
-                using (Stream stream = new FileStream(path, FileMode.Create))
+
+
+                //Update image
+                if (image != null)
                 {
-                    await image.CopyToAsync(stream);
+                    string fileName = image.FileName;
+                    string path = this.helperPath.MapPath(fileName, Folder.Stores);
+                    using (Stream stream = new FileStream(path, FileMode.Create))
+                    {
+                        await image.CopyToAsync(stream);
+                    }
+
+                    await this.repoStores.UpdateStoreAsync(id, name, email, fileName, category);
+
+                }
+                else
+                {
+                    await this.repoStores.UpdateStoreAsync(id, name, email, oldimage, category);
                 }
 
-                await this.repoStores.UpdateStoreAsync(id, name, email, fileName, category);
 
+                return RedirectToAction("StoreDetails", new { id = id });
             }
-            else
+            catch (Exception ex)
             {
-                await this.repoStores.UpdateStoreAsync(id, name, email, oldimage, category);
+                // Log the exception (you can use any logging framework)
+                Console.WriteLine($"Error updating store: {ex.Message}");
+                // Optionally, add a user-friendly error message to the view
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the store. Please try again.");
+                // Return the view with the current model to display the error
+                Store store = await this.repoStores.FindSimpleStoreAsync(id);
+                return View(store);
             }
+        }
 
-            return RedirectToAction("StoreDetails", new { id = id });
+        public async Task<IActionResult> StoreDelete(int id)
+        {
+            await this.repoStores.DeleteStoreAsync(id);
+            return RedirectToAction("Stores");
         }
 
 
@@ -97,15 +119,38 @@ namespace Eshop.Controllers
         #region Producs CRUD
         public async Task<IActionResult> ProductList()
         {
-            List<Store> stores = await this.repoStores.GetStoresAsync();
-            return View(stores);
+            List<Product> products = await this.repoStores.GetAllProductsAsync();
+            return View(products);
         }
 
-        public async Task<IActionResult> ProductDetails()
+        public async Task<IActionResult> ProductDetails(int id)
         {
-            List<Store> stores = await this.repoStores.GetStoresAsync();
-            return View(stores);
+            Product product = await this.repoStores.FindProductAsync(id);
+            return View(product);
         }
+
+        public async Task<IActionResult> ProductCreate()
+        {
+            
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ProductCreate(string name, string description, IFormFile image, float price, int stock)
+        {
+            //Create route and save image
+            string fileName = image.FileName;
+            string path = this.helperPath.MapPath(fileName, Folder.Products);
+            using (Stream stream = new FileStream(path, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+            //Insert product
+            Product product = await this.repoStores.InsertProductAsync(name, description, price, stock, fileName);
+            return RedirectToAction("ProductDetails", new { id = product.Id });
+        }
+
+
 
 
 

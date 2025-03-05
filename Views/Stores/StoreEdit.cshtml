@@ -25,6 +25,7 @@
             <div class="form-group">
                 <label asp-for="Image" class="control-label"></label>
                 <input asp-for="Image" type="file" class="form-control" />
+
                 <img src="~/images/stores/@Model.Image" width="200px"/>
                 <input type="hidden" value="@Model.Image" name="oldimage"/>
             </div>

@@ -41,15 +41,17 @@
             @foreach (Store store in Model)
             {
                 <div class="col-lg-4 col-md-6 text-center @store.Category">
+					<a asp-controller="Stores" asp-action="StoreDetails" asp-route-id="@store.Id">
                     <div class="single-product-item">
                         <div class="product-image">
-                            <a href="single-product.html"><img src="~/images/stores/artesanshop.jpg" alt="shop banner @store.Name"></a>
+							<img src="~/images/stores/artesanshop.jpg" alt="shop banner @store.Name">
                         </div>
                         <h3>@store.Name</h3>
                         @* <p class="product-price"><span>Per Kg</span> 85$ </p> *@
-                        <a asp-controller="Stores" asp-action="StoreDetails" asp-route-id="@store.Id" class="cart-btn">
+                        <a asp-controller="Stores" asp-action="StoreDelete" asp-route-id="@store.Id" class="cart-btn">
 							<i class="fas fa-star"></i> Visit store</a>
                     </div>
+					</a>
                 </div>
             }
 		</div>

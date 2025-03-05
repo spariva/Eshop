@@ -2,7 +2,8 @@
 
 
 <!-- breadcrumb-section -->
-<div class="breadcrumb-section breadcrumb-bg">
+<div class="breadcrumb-section" style="background-image: url('/images/stores/@Model.Store.Image')">
+    @*<img src="~/images/stores/artesanshop.jpg" alt="Banner" class="breadcrumb-bg-img" />*@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
@@ -17,9 +18,7 @@
 <!-- end breadcrumb section -->
 
 <div>
-    <h2>@Model.Store.Name</h2>
     <p>Email: @Model.Store.Email</p>
-    <p>Category: @Model.Store.Category</p>
     <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id">Update store</a>
     <img src="~/images/stores/@Model.Store.Image" alt="Store Image" />
 

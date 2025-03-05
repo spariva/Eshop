@@ -23,7 +23,7 @@ namespace Eshop.Models
         public string Image { get; set; }
 
         [Column("PRICE")]
-        public decimal Price { get; set; }
+        public float Price { get; set; }
 
         [Column("STOCK_QUANTITY")]
         public int StockQuantity { get; set; }
