@@ -30,11 +30,6 @@ namespace Eshop.Repositories
 
             Store store = await consulta.FirstOrDefaultAsync();
 
-            if (store == null)
-            {
-                return null;
-            }
-
             return store;
         }
 
@@ -45,12 +40,6 @@ namespace Eshop.Repositories
                            select datos;
 
             Store store = await consulta.FirstOrDefaultAsync();
-
-
-            if (store == null)
-            {
-                return null;
-            }
 
             // Get the products for the store, including their ProdCats and Categories
             List<Product> products = await this.context.Products
@@ -122,14 +111,80 @@ namespace Eshop.Repositories
 
         #endregion
 
-#region products
-        public async Task<List<Product>> GetProductsAsync(int idStore)
+        #region product categories
+        public async Task<List<Category>> GetAllCategoriesAsync()
         {
-            var consulta = from datos in this.context.Products
-                           where datos.StoreId == idStore
+            var consulta = from datos in this.context.Categories
                            select datos;
-
             return await consulta.ToListAsync();
+        }
+
+        public async Task<Category> FindOrCreateCategoryAsync(string categoryName)
+        {
+            var category = await this.context.Categories.FirstOrDefaultAsync(c => c.CategoryName == categoryName.ToUpper());
+            int maxId = await this.context.Categories.MaxAsync(x => x.Id);
+            if (category == null)
+            {
+                category = new Category { Id = (maxId + 1), CategoryName = categoryName };
+                this.context.Categories.Add(category);
+                await this.context.SaveChangesAsync();
+            }
+            return category;
+        }
+
+        public async Task AddCategoryToProductAsync(int productId, int categoryId)
+        {
+            var prodCat = new ProdCat { ProductId = productId, CategoryId = categoryId };
+            this.context.ProdCats.Add(prodCat);
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task RemoveCategoryToProductAsync(int productId, int categoryId)
+        {
+            var prodCat = await this.context.ProdCats.FirstOrDefaultAsync(pc => pc.ProductId == productId && pc.CategoryId == categoryId);
+            this.context.ProdCats.Remove(prodCat);
+            await this.context.SaveChangesAsync();
+        }
+        #endregion
+
+
+        #region products
+        public async Task<List<Product>> GetAllProductsAsync()
+        {
+            var consulta = await this.context.Products.ToListAsync();
+            // Get the products for the store, including their ProdCats and Categories
+            //List<Product> products = await this.context.Products
+            //    .Include(p => p.ProdCats) // Include ProdCats
+            //    .ThenInclude(pc => pc.Category) // Include Category for each ProdCat
+            //    .ToListAsync();
+
+            //// Get distinct category names for the filter list
+            //var categoryNames = products
+            //    .SelectMany(p => p.ProdCats.Select(pc => pc.Category.CategoryName))
+            //    .Distinct()
+            //    .ToList();
+
+            return consulta;
+        }
+
+        public async Task<Product> FindProductAsync(int idProduct)
+        {
+            //var consulta = from datos in this.context.Products
+            //               where datos.Id == idProduct
+            //               select datos;
+
+            var product = this.context.Products
+                .Where(p => p.Id == idProduct) // Filter by product ID
+                .Include(p => p.ProdCats) // Include ProdCats
+                .ThenInclude(pc => pc.Category); // Include Category for each ProdCat
+
+            if (product == null)
+            {
+                return null;
+            }
+            Product p = await product.FirstOrDefaultAsync();
+
+            return p;
         }
 
         public async Task<List<string>> GetProductsCategoriesAsync(List<int> productsIds)
@@ -145,36 +200,17 @@ namespace Eshop.Repositories
             return await consulta.ToListAsync();
         }
 
-        #region CRUD Products
-        public async Task<List<Product>> GetAllProductsAsync()
-        {
-            var consulta = from datos in this.context.Products
-                           select datos;
-            return await consulta.ToListAsync();
-        }
-
-
-        public async Task<Product> FindProductAsync(int idProduct)
-        {
-            var consulta = from datos in this.context.Products
-                           where datos.Id == idProduct
-                           select datos;
-            return await consulta.FirstOrDefaultAsync();
-        }
 
         public async Task<Product> SearchProductNameAsync(string name)
         {
             var consulta = from datos in this.context.Products
                            where datos.Name == name
                            select datos;
-            if (consulta == null)
-            {
-                return null;
-            }
 
             return await consulta.FirstOrDefaultAsync();
         }
 
+        #region CRUD Products
         public async Task<Product> InsertProductAsync(string name, string description, string image, decimal price, int stock, List<int> categories)
         {
             int maxId = await this.context.Products.MaxAsync(x => x.Id);
@@ -204,39 +240,7 @@ namespace Eshop.Repositories
             return p;
         }
 
-        public async Task<List<Category>> GetAllCategoriesAsync()
-        {
-            var consulta = from datos in this.context.Categories
-                           select datos;
-            return await consulta.ToListAsync();
-        }
 
-        public async Task<Category> FindOrCreateCategoryAsync(string categoryName)
-        {
-            var category = await this.context.Categories.FirstOrDefaultAsync(c => c.CategoryName == categoryName.ToUpper());
-            int maxId = await this.context.Categories.MaxAsync(x => x.Id);
-            if (category == null)
-            {
-                category = new Category { Id = (maxId + 1) , CategoryName = categoryName};
-                this.context.Categories.Add(category);
-                await this.context.SaveChangesAsync();
-            }
-            return category;
-        }
-
-        public async Task AddCategoryToProductAsync(int productId, int categoryId)
-        {
-            var prodCat = new ProdCat { ProductId = productId, CategoryId = categoryId };
-            this.context.ProdCats.Add(prodCat);
-            await this.context.SaveChangesAsync();
-        }
-
-        public async Task RemoveCategoryToProductAsync(int productId, int categoryId)
-        {
-            var prodCat = await this.context.ProdCats.FirstOrDefaultAsync(pc => pc.ProductId == productId && pc.CategoryId == categoryId);
-            this.context.ProdCats.Remove(prodCat);
-            await this.context.SaveChangesAsync();
-        }
 
         #endregion
 

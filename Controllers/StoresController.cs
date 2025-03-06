@@ -172,6 +172,7 @@ namespace Eshop.Controllers
                 return RedirectToAction("ProductDetails", new { id = product.Id });
             }
 
+
             // If we got this far, something failed; re-populate the categories
             var categories = await this.repoStores.GetAllCategoriesAsync();
             ViewBag.Categories = categories.Select(c => new SelectListItem
@@ -179,6 +180,7 @@ namespace Eshop.Controllers
                 Value = c.Id.ToString(),
                 Text = c.CategoryName
             }).ToList();
+            ViewBag.Mensaje = "Error en el formulario model state is not valid";
 
             return View();
         }

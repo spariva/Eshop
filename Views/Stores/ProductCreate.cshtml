@@ -1,8 +1,14 @@
 ﻿@model Product
 
+@{
+    List<SelectListItem> categories = ViewBag.ProductCategories as List<SelectListItem>;
+}
+
 <h1>StoreEdit</h1>
 
 <h4>Store</h4>
+@ViewBag.Mensaje
+
 <form asp-action="ProductCreate" method="post" enctype="multipart/form-data" class="mt-5">
     <div class="form-group">
         <label asp-for="Name"></label>
@@ -27,7 +33,7 @@
     <div class="form-group">
         <label for="ExistingCategories">Existing Categories</label>
         <select name="SelectedCategories" multiple class="form-control">
-            @foreach (var category in ViewBag.ProductCategories as List<SelectListItem>)
+            @foreach (var category in categories)
             {
                     <option value="@category.Value">@category.Text</option>
             }

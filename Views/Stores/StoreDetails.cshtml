@@ -19,26 +19,15 @@
 
 <div>
     <p>Email: @Model.Store.Email</p>
-    <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id">Update store</a>
-    <img src="~/images/stores/@Model.Store.Image" alt="Store Image" />
-
-    <h3>Products</h3>
-    @if (Model.Products.Count == 0)
+    @if (int.TryParse(Context.Session.GetString("User"), out int userId) && userId == Model.Store.UserId)
     {
-        <p>No products available</p>
+        <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id" class="btn btn-outline-warning">Update store</a>
     }
     else
     {
-        <ul>
-            @foreach (Product product in Model.Products)
-            {
-                <li>
-                    <strong>@product.Name</strong>
-                    <p>Price: @product.Price</p>
-                </li>
-            }
-        </ul>
-    })
+        <p>Not your store</p>
+    }
+
 </div>
 
 <!-- Products -->
@@ -69,16 +58,18 @@
                 {
                     var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
                     <div class="col-lg-4 col-md-6 text-center @categoryClasses">
-                        <div class="single-product-item">
-                            <div class="product-image">
-                                <a href="single-product.html"><img src="~/images/products/@product.Image" alt="shop banner @product.Name"></a>
+                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id">
+                            <div class="single-product-item">
+                                <div class="product-image">
+                                    <a href="single-product.html"><img src="~/images/products/@product.Image" alt="shop banner @product.Name"></a>
+                                </div>
+                                <h3>@product.Name</h3>
+                                <p class="product-price">@product.Price </p>
+                                <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn">
+                                    <i class="fas fa-cart"></i> Add to cart
+                                </a>
                             </div>
-                            <h3>@product.Name</h3>
-                            <p class="product-price">@product.Price </p>
-                            <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn">
-                                <i class="fas fa-cart"></i> Add to cart
-                            </a>
-                        </div>
+                        </a>
                     </div>
                 }
 

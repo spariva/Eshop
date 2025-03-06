@@ -7,15 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<HelperPathProvider>();
 builder.Services.AddSingleton<HelperToolkit>();
+builder.Services.AddSingleton<HelperCriptography>();
 
-builder.Services.AddMemoryCache();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession();
-
-string connectionString =
-    builder.Configuration.GetConnectionString("SqlClase");
 //string connectionString =
-//    builder.Configuration.GetConnectionString("Sql");
+//    builder.Configuration.GetConnectionString("SqlClase");
+string connectionString =
+    builder.Configuration.GetConnectionString("SqlCasa");
 
 builder.Services.AddTransient<RepositoryUsers>();
 builder.Services.AddTransient<RepositoryStores>();
@@ -47,10 +44,12 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
-app.UseSession();
 
 app.UseStaticFiles();
 app.MapStaticAssets();
+
+app.UseSession();
+
 
 app.MapControllerRoute(
     name: "default",
