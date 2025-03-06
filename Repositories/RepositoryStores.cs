@@ -240,6 +240,34 @@ namespace Eshop.Repositories
             return p;
         }
 
+        public async Task<Product> UpdateProductAsync(string name, string description, string image, decimal price, int stock, List<int> categories)
+        {
+            Product p = new Product
+            {
+                Id = 1,
+                Name = name,
+                Description = description,
+                Image = image,
+                Price = price,
+                StockQuantity = stock
+            };
+
+            await this.context.Products.AddAsync(p);
+            await this.context.SaveChangesAsync();
+
+            foreach (int cat in categories)
+            {
+                ProdCat pc = new ProdCat
+                {
+                    ProductId = p.Id,
+                    CategoryId = cat
+                };
+                await this.context.ProdCats.AddAsync(pc);
+            }
+            await this.context.SaveChangesAsync();
+            return p;
+        }
+
 
 
         #endregion

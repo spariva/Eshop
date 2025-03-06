@@ -147,7 +147,7 @@ namespace Eshop.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Save the image
+                // Save the image 
                 string fileName = image.FileName;
                 string path = this.helperPath.MapPath(fileName, Folder.Products);
                 using (Stream stream = new FileStream(path, FileMode.Create))
@@ -194,6 +194,16 @@ namespace Eshop.Controllers
         [HttpPost]
         public async Task<IActionResult> ProductEdit(int id, string name, string description, IFormFile image, string oldimage, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories)
         {
+            if (!string.IsNullOrEmpty(newCategories))
+            {
+                var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).ToList();
+                foreach (var categoryName in newCategoryNames)
+                {
+                    var category = await this.repoStores.FindOrCreateCategoryAsync(categoryName);
+                    selectedCategories.Add(category.Id);
+                }
+            }
+
             if (image != null)
             {
                 string fileName = image.FileName;
