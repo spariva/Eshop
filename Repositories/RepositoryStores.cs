@@ -89,11 +89,6 @@ namespace Eshop.Repositories
         {
             Store s = await this.FindSimpleStoreAsync(id);
 
-            if (s == null)
-            {
-                return null;
-            }
-
             s.Name = name;
             s.Email = email;
             s.Image = image;
@@ -240,20 +235,15 @@ namespace Eshop.Repositories
             return p;
         }
 
-        public async Task<Product> UpdateProductAsync(string name, string description, string image, decimal price, int stock, List<int> categories)
+        public async Task<Product> UpdateProductAsync(int id, string name, string description, string image, decimal price, int stock, List<int> categories)
         {
-            Product p = new Product
-            {
-                Id = 1,
-                Name = name,
-                Description = description,
-                Image = image,
-                Price = price,
-                StockQuantity = stock
-            };
+            Product p = await this.FindProductAsync(id);
 
-            await this.context.Products.AddAsync(p);
-            await this.context.SaveChangesAsync();
+            p.Name = name;
+            p.Description = description;
+            p.Image = image;
+            p.Price = price;
+            p.StockQuantity = stock;
 
             foreach (int cat in categories)
             {
@@ -264,6 +254,7 @@ namespace Eshop.Repositories
                 };
                 await this.context.ProdCats.AddAsync(pc);
             }
+
             await this.context.SaveChangesAsync();
             return p;
         }

@@ -26,6 +26,8 @@
     else
     {
         <p>Not your store</p>
+        <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id" class="btn btn-outline-warning">Update store</a>
+
     }
 
 </div>

@@ -6,17 +6,20 @@
 		<div class="row">
 			<div class="col-lg-8 offset-lg-2 text-center">
 				<div class="breadcrumb-text">
-					<p>See more Details</p>
 					<h1>@Model.Name</h1>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<h2>Cambiar a que solo veas si es tu tienda etc</h2>
-<a asp-controller="Stores" asp-action="ProductEdit" asp-route-id="@Model.Id" class="cart-btn">
-	<i class="fas fa-star"></i> Delete store
-</a>
+<div class="row">
+	<div class="col-12">
+		<a asp-controller="Stores" asp-action="ProductEdit" asp-route-id="@Model.Id" class="cart-btn">
+			<i class="fas fa-edit"></i> Editar producto
+		</a>
+	</div>
+</div>
+
 <!-- end breadcrumb section -->
 <!-- single product -->
 <div class="single-product mt-150 mb-150">

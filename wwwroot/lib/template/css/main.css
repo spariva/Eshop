@@ -2767,3 +2767,47 @@ table.order-details {
     vertical-align: middle;
     width: 100%;
 }
+
+/* -----------------------------------------------------------------------------
+
+# Forms 
+
+----------------------------------------------------------------------------- */
+
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.form-control:focus {
+    border-color: #F28123;
+    box-shadow: 0 0 0 0.25rem rgba(242, 129, 35, 0.25);
+}
+
+.btn-outline-secondary:hover {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.card-header {
+    border-bottom: 3px solid #F28123;
+}
+
+.btn-orange {
+    background-color: #F28123;
+    color: white;
+    border-radius: 9px;
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s;
+}
+
+    .btn-orange:hover {
+        background-color: #051922;
+        color: #F28123;
+    }

@@ -73,8 +73,6 @@ namespace Eshop.Controllers
         {
             try
             {
-
-
                 //Update image
                 if (image != null)
                 {
@@ -213,10 +211,11 @@ namespace Eshop.Controllers
                     await image.CopyToAsync(stream);
                 }
 
-                await this.repoStores.UpdateProductAsync(name, description, fileName, price, stockQuantity, selectedCategories);
-            } else
+                await this.repoStores.UpdateProductAsync(id, name, description, fileName, price, stockQuantity, selectedCategories);
+            } 
+            else
             {
-                await this.repoStores.UpdateProductAsync(name, description, oldimage, price, stockQuantity, selectedCategories);
+                await this.repoStores.UpdateProductAsync(id, name, description, oldimage, price, stockQuantity, selectedCategories);
             }
 
             return RedirectToAction("ProductDetails", new { id = id });

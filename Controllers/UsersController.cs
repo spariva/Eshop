@@ -2,7 +2,7 @@
 
 namespace Eshop.Controllers
 {
-    public class AuthController : Controller
+    public class UsersController : Controller
     {
         public IActionResult Index()
         {
