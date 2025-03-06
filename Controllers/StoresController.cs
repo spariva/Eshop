@@ -57,7 +57,7 @@ namespace Eshop.Controllers
             }
 
             //Insert store
-            Store store = await this.repoStores.InsertStoreAsync(name, email, fileName, category.ToUpper());
+            Store store = await this.repoStores.CreateStoreAsync(name, email, fileName, category.ToUpper());
 
             return RedirectToAction("StoreDetails", new {id = store.Id} );
         }
@@ -167,7 +167,7 @@ namespace Eshop.Controllers
                 }
 
                 // Insert the product
-                var product = await this.repoStores.InsertProductAsync(name, description, fileName, price, stockQuantity, selectedCategories);
+                var product = await this.repoStores.CreateProductAsync(name, description, fileName, price, stockQuantity, selectedCategories);
 
                 return RedirectToAction("ProductDetails", new { id = product.Id });
             }
@@ -185,7 +185,32 @@ namespace Eshop.Controllers
             return View();
         }
 
+        public async Task<IActionResult> ProductEdit(int id)
+        {
+            Product product = await this.repoStores.FindProductAsync(id);
+            return View(product);
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> ProductEdit(int id, string name, string description, IFormFile image, string oldimage, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories)
+        {
+            if (image != null)
+            {
+                string fileName = image.FileName;
+                string path = this.helperPath.MapPath(fileName, Folder.Products);
+                using (Stream stream = new FileStream(path, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                await this.repoStores.UpdateProductAsync(name, description, fileName, price, stockQuantity, selectedCategories);
+            } else
+            {
+                await this.repoStores.UpdateProductAsync(name, description, oldimage, price, stockQuantity, selectedCategories);
+            }
+
+            return RedirectToAction("ProductDetails", new { id = id });
+        }
 
 
 
