@@ -4,9 +4,8 @@
     List<SelectListItem> categories = ViewBag.ProductCategories as List<SelectListItem>;
 }
 
-<h1>StoreEdit</h1>
+<partial name="_Breadcrumb" />
 
-<h4>Store</h4>
 @ViewBag.Mensaje
 
 <form asp-action="ProductCreate" method="post" enctype="multipart/form-data" class="mt-5">
@@ -45,3 +44,99 @@
     </div>
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="card-title mb-0 text-white">Create new product</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="ProductCreate" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Product Name -->
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold">Product Name</label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Enter product name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Product Description -->
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter product description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Product Image -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-center">Product Image</label>
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <input name="Image" type="file" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price and Stock in a row -->
+                        <div class="row mb-4">
+                            <div class="col-md-5">
+                                <label asp-for="StockQuantity" class="form-label fw-bold">Stock Quantity</label>
+                                <input asp-for="StockQuantity" class="form-control" placeholder="Enter stock quantity" />
+                                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                                <!-- Spacer with visual separator -->
+                                <div class="d-none d-md-block h-50 border-end mx-auto" style="width: 1px;"></div>
+                            </div>
+                            <div class="col-md-5">
+                                <label asp-for="Price" class="form-label fw-bold">Price €</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input asp-for="Price" class="form-control"
+                                           data-val="true"
+                                           data-val-number="The field Price must be a number separated by a dot . if you use decimals"
+                                           data-val-regex="The field Price must be a number separated by a dot . if you use decimals"
+                                           data-val-regex-pattern="^[0-9]+([\.][0-9]+)?$"
+                                           placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="NewCategories">New Categories (comma-separated)</label>
+                                    <input name="NewCategories" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="ExistingCategories">Existing Categories</label>
+                                    <select name="SelectedCategories" multiple class="form-control">
+                                        @foreach (var category in categories)
+                                        {
+                                            <option value="@category.Value">@category.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                            </a>
+                            <button type="submit" class="btn btn-lg btn-orange">
+                                <i class="fas fa-save me-2"></i> Create product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -115,7 +115,7 @@ namespace Eshop.Controllers
 
         #endregion
 
-        #region Producs CRUD
+        #region Products CRUD
         public async Task<IActionResult> ProductList()
         {
             List<Product> products = await this.repoStores.GetAllProductsAsync();
@@ -186,6 +186,14 @@ namespace Eshop.Controllers
         public async Task<IActionResult> ProductEdit(int id)
         {
             Product product = await this.repoStores.FindProductAsync(id);
+
+            List<Category> categories = await this.repoStores.GetAllCategoriesAsync();
+            ViewBag.Productcategories = categories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.CategoryName
+            }).ToList();
+
             return View(product);
         }
 
@@ -212,13 +220,15 @@ namespace Eshop.Controllers
                 }
 
                 await this.repoStores.UpdateProductAsync(id, name, description, fileName, price, stockQuantity, selectedCategories);
-            } 
+            }
             else
             {
                 await this.repoStores.UpdateProductAsync(id, name, description, oldimage, price, stockQuantity, selectedCategories);
             }
-
             return RedirectToAction("ProductDetails", new { id = id });
+
+
+            // If we got this far, something failed; re-populate the categories? TODO
         }
 
 

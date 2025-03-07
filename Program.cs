@@ -28,10 +28,10 @@ builder.Services.AddSingleton<HelperPathProvider>();
 builder.Services.AddSingleton<HelperToolkit>();
 builder.Services.AddSingleton<HelperCriptography>();
 
-//string connectionString =
-//    builder.Configuration.GetConnectionString("SqlClase");
 string connectionString =
-    builder.Configuration.GetConnectionString("SqlCasa");
+    builder.Configuration.GetConnectionString("SqlClase");
+//string connectionString =
+//    builder.Configuration.GetConnectionString("SqlCasa");
 
 builder.Services.AddTransient<RepositoryUsers>();
 builder.Services.AddTransient<RepositoryStores>();

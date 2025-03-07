@@ -1,8 +1,9 @@
 ﻿@model Eshop.Models.Product
 
 @{
-    ViewData["Title"] = "ProductEdit";
+    List<SelectListItem> categories = ViewBag.ProductCategories as List<SelectListItem>;
 }
+
 
 <partial name="_Breadcrumb" />
 
@@ -38,16 +39,16 @@
 
                         <!-- Product Image -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Product Image</label>
+                            <label class="form-label fw-bold text-center">Product Image</label>
                             <div class="row">
-                                <div class="col-md-8">
-                                    <input name="Image" type="file" class="form-control" />
-                                </div>
-                                <div class="col-md-4 text-center">
+                                <div class="col-md-5 text-center">
                                     @if (!string.IsNullOrEmpty(Model.Image))
                                     {
                                         <img src="~/images/products/@Model.Image" class="img-thumbnail" style="max-height: 100px;" alt="Product Image" />
                                     }
+                                </div>
+                                <div class="col-md-7">
+                                    <input name="Image" type="file" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -55,9 +56,18 @@
                         <!-- Price and Stock in a row -->
                         <div class="row mb-4">
                             <div class="col-md-5">
+                                <label asp-for="StockQuantity" class="form-label fw-bold">Stock Quantity</label>
+                                <input asp-for="StockQuantity" class="form-control" placeholder="Enter stock quantity" />
+                                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                                <!-- Spacer with visual separator -->
+                                <div class="d-none d-md-block h-50 border-end mx-auto" style="width: 1px;"></div>
+                            </div>
+                            <div class="col-md-5">
                                 <label asp-for="Price" class="form-label fw-bold">Price €</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">€</span>
                                     <input asp-for="Price" class="form-control"
                                            data-val="true"
                                            data-val-number="The field Price must be a number separated by a dot . if you use decimals"
@@ -67,14 +77,24 @@
                                 </div>
                                 <span asp-validation-for="Price" class="text-danger"></span>
                             </div>
-                            <div class="col-md-2 d-flex align-items-center justify-content-center">
-                                <!-- Spacer with visual separator -->
-                                <div class="d-none d-md-block h-50 border-end mx-auto" style="width: 1px;"></div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="NewCategories">New Categories (comma-separated)</label>
+                                    <input name="NewCategories" class="form-control" />
+                                </div>
                             </div>
                             <div class="col-md-5">
-                                <label asp-for="StockQuantity" class="form-label fw-bold">Stock Quantity</label>
-                                <input asp-for="StockQuantity" class="form-control" placeholder="Enter stock quantity" />
-                                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                                <div class="form-group">
+                                    <label for="ExistingCategories">Existing Categories</label>
+                                    <select name="SelectedCategories" multiple class="form-control">
+                                        @foreach (var category in categories)
+                                        {
+                                            <option value="@category.Value">@category.Text</option>
+                                        }
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -84,7 +104,7 @@
                                 <i class="fas fa-arrow-left me-2"></i>Back to List
                             </a>
                             <button type="submit" class="btn btn-lg btn-orange">
-                                <i class="fas fa-save me-2"></i>Save Changes
+                                <i class="fas fa-save me-2"></i> Save Changes
                             </button>
                         </div>
                     </form>
