@@ -8,7 +8,7 @@
 
 @ViewBag.Mensaje
 
-<form asp-action="ProductCreate" method="post" enctype="multipart/form-data" class="mt-5">
+@* <form asp-action="ProductCreate" method="post" enctype="multipart/form-data" class="mt-5">
     <div class="form-group">
         <label asp-for="Name"></label>
         <input asp-for="Name" class="form-control" />
@@ -43,7 +43,7 @@
         <input name="NewCategories" class="form-control" />
     </div>
     <button type="submit" class="btn btn-primary">Create</button>
-</form>
+</form> *@
 
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -75,7 +75,7 @@
                             <label class="form-label fw-bold text-center">Product Image</label>
                             <div class="row">
                                 <div class="col-md-7">
-                                    <input name="Image" type="file" class="form-control" />
+                                    <input asp-for="Image" type="file" class="form-control" />
                                 </div>
                             </div>
                         </div>

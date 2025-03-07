@@ -83,12 +83,12 @@ namespace Eshop.Controllers
                         await image.CopyToAsync(stream);
                     }
 
-                    await this.repoStores.UpdateStoreAsync(id, name, email, fileName, category);
+                    await this.repoStores.UpdateStoreAsync(id, name, email, fileName, category.ToUpper());
 
                 }
                 else
                 {
-                    await this.repoStores.UpdateStoreAsync(id, name, email, oldimage, category);
+                    await this.repoStores.UpdateStoreAsync(id, name, email, oldimage, category.ToUpper());
                 }
 
 
@@ -156,7 +156,7 @@ namespace Eshop.Controllers
                 // Handle new categories
                 if (!string.IsNullOrEmpty(newCategories))
                 {
-                    var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).ToList();
+                    var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToUpper()).ToList();
                     foreach (var categoryName in newCategoryNames)
                     {
                         var category = await this.repoStores.FindOrCreateCategoryAsync(categoryName);
@@ -202,7 +202,7 @@ namespace Eshop.Controllers
         {
             if (!string.IsNullOrEmpty(newCategories))
             {
-                var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).ToList();
+                var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToUpper()).ToList();
                 foreach (var categoryName in newCategoryNames)
                 {
                     var category = await this.repoStores.FindOrCreateCategoryAsync(categoryName);
@@ -229,6 +229,16 @@ namespace Eshop.Controllers
 
 
             // If we got this far, something failed; re-populate the categories? TODO
+        }
+
+        //First I find the product to get the id, so I pass the Product to not call twice the database
+        public async Task<IActionResult> ProductDelete(int id)
+        {
+            Product p = await this.repoStores.FindProductAsync(id);
+            int storeId = p.StoreId;
+
+            await this.repoStores.DeleteProductAsync(p);
+            return RedirectToAction("StoreDetails", storeId);
         }
 
 

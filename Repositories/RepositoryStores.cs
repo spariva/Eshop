@@ -196,7 +196,7 @@ namespace Eshop.Repositories
         }
 
 
-        public async Task<Product> SearchProductNameAsync(string name)
+        public async Task<Product> SearchProductByNameAsync(string name)
         {
             var consulta = from datos in this.context.Products
                            where datos.Name == name
@@ -257,6 +257,12 @@ namespace Eshop.Repositories
 
             await this.context.SaveChangesAsync();
             return p;
+        }
+
+        public async Task DeleteProductAsync(Product p)
+        {
+            this.context.Products.Remove(p);
+            await this.context.SaveChangesAsync();
         }
 
 
