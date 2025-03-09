@@ -4,6 +4,7 @@ using Eshop.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,10 +20,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
 });
 
-//System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
-//customCulture.NumberFormat.NumberDecimalSeparator = ".";
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-//System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
 
 builder.Services.AddSingleton<HelperPathProvider>();
 builder.Services.AddSingleton<HelperToolkit>();
@@ -33,12 +32,12 @@ builder.Services.AddSingleton<HelperCriptography>();
 string connectionString =
     builder.Configuration.GetConnectionString("SqlCasa");
 
+builder.Services.AddDbContext<EshopContext>
+    (options => options.UseSqlServer(connectionString));
+
 builder.Services.AddTransient<RepositoryUsers>();
 builder.Services.AddTransient<RepositoryStores>();
 
-
-builder.Services.AddDbContext<EshopContext>
-    (options => options.UseSqlServer(connectionString));
 
 builder.Services.AddSession();
 builder.Services.AddMemoryCache();
@@ -68,20 +67,17 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
 app.UseStaticFiles();
-
 
 app.UseRequestLocalization();
 
-
 app.UseSession();
-
 
 app.UseRouting();
 
-
 app.UseAuthorization();
+
+app.MapStaticAssets();
 
 
 app.MapControllerRoute(

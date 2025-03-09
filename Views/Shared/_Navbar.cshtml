@@ -18,17 +18,17 @@
                                 <li class="current-list-item">
                                     <a href="#">Home</a>
                                     <ul class="sub-menu">
-                                        <li><a href="index.html">Static Home</a></li>
-                                        <li><a href="index_2.html">Slider Home</a></li>
+                                        <li><a asp-action="Home" asp-controller="Home">Home</a></li>
+                                        @* <li><a href="index_2.html">Slider Home</a></li> *@
                                     </ul>
                                 </li>
                                 <li><a href="about.html">About</a></li>
                                 <li>
                                     <a href="#">Pages</a>
                                     <ul class="sub-menu">
-                                        <li><a href="404.html">404 page</a></li>
-                                        <li><a href="about.html">About</a></li>
-                                        <li><a href="cart.html">Cart</a></li>
+                                        <li><a asp-controller="Home" asp-action="Error404">404</a></li>
+                                        <li><a asp-controller="Home" asp-action="AboutUs">About us</a></li>
+                                        <li><a asp-controller="Cart" asp-action="Cart">Cart</a></li>
                                         <li><a href="checkout.html">Check Out</a></li>
                                         <li><a asp-controller="Stores" asp-action="ProductCreate">Create product</a></li>
                                         <li><a asp-controller="Stores" asp-action="StoreCreate">Create store</a></li>

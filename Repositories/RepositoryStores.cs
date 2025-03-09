@@ -106,7 +106,8 @@ namespace Eshop.Repositories
 
         #endregion
 
-        #region product categories
+
+#region product categories
         public async Task<List<Category>> GetAllCategoriesAsync()
         {
             var consulta = from datos in this.context.Categories
@@ -137,13 +138,15 @@ namespace Eshop.Repositories
         public async Task RemoveCategoryToProductAsync(int productId, int categoryId)
         {
             var prodCat = await this.context.ProdCats.FirstOrDefaultAsync(pc => pc.ProductId == productId && pc.CategoryId == categoryId);
-            this.context.ProdCats.Remove(prodCat);
-            await this.context.SaveChangesAsync();
+            if (prodCat != null) {
+                this.context.ProdCats.Remove(prodCat);
+                await this.context.SaveChangesAsync();
+            }
         }
         #endregion
 
 
-        #region products
+#region products
         public async Task<List<Product>> GetAllProductsAsync()
         {
             var consulta = await this.context.Products.ToListAsync();
@@ -271,5 +274,58 @@ namespace Eshop.Repositories
 
         #endregion
 
+        #region Shopping-Cart
+
+        public async Task<List<Product>> GetCartItemsAsync(List<CartItem> cartItems)
+        {
+            var consulta = from datos in this.context.Products
+                           where cartItems.Select(ci => ci.Id).Contains(datos.Id)
+                           select datos;
+
+            if (consulta == null)
+            {
+                return null;
+            }
+
+            return await consulta.ToListAsync();
+        }
+
+        //public async Task<CartItem> FindCartItemAsync(int userId, int productId)
+        //{
+        //    var consulta = from datos in this.context.CartItems
+        //                   where datos.UserId == userId && datos.ProductId == productId
+        //                   select datos;
+        //    return await consulta.FirstOrDefaultAsync();
+        //}
+
+        //public async Task<CartItem> AddCartItemAsync(int userId, int productId, int quantity)
+        //{
+        //    CartItem ci = new CartItem
+        //    {
+        //        UserId = userId,
+        //        ProductId = productId,
+        //        Quantity = quantity
+        //    };
+        //    await this.context.CartItems.AddAsync(ci);
+        //    await this.context.SaveChangesAsync();
+        //    return ci;
+        //}
+
+        //public async Task<CartItem> UpdateCartItemAsync(int userId, int productId, int quantity)
+        //{
+        //    CartItem ci = await this.FindCartItemAsync(userId, productId);
+        //    ci.Quantity = quantity;
+        //    await this.context.SaveChangesAsync();
+        //    return ci;
+        //}
+
+        //public async Task DeleteCartItemAsync(int userId, int productId)
+        //{
+        //    CartItem ci = await this.FindCartItemAsync(userId, productId);
+        //    this.context.CartItems.Remove(ci);
+        //    await this.context.SaveChangesAsync();
+        //}
+
+#endregion
     }
 }

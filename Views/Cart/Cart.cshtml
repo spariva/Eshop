@@ -1,107 +1,136 @@
-﻿
+﻿@model List<Product>
+
+@{
+    var cartItems = Context.Session.GetObject<List<CartItem>>("CartItems");
+}
+
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 offset-lg-2 text-center">
-				<div class="breadcrumb-text">
-					<h1>Cart</h1>
-					<p>Easy pay</p>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 text-center">
+                <div class="breadcrumb-text">
+                    <h1>Cart</h1>
+                    @if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+                    {
+                        <p>@ViewBag.Mensaje</p>
+                        <a asp-action="Stores" asp-controller="Stores" class="btn btn-orange p-4">Back to shopping</a>
+                    }
+                    else
+                    {
+                        <p>Easy pay</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- end breadcrumb section -->
+@if (Model != null)
+{
+    <div class="cart-section mt-150 mb-150 pb-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-md-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header bg-dark text-white">
+                            <h3 class="card-title mb-0 text-white">Shopping Cart</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th scope="col" class="product-image">Product</th>
+                                            <th scope="col" class="product-name">Name</th>
+                                            <th scope="col" class="product-price">Price</th>
+                                            <th scope="col" class="product-quantity">Quantity</th>
+                                            <th scope="col" class="product-total">Total</th>
+                                            <th scope="col" class="product-remove"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (Product p in Model)
+                                        {
+                                            <tr class="align-middle" data-id="@p.Id">
+                                                <td class="product-image"><img src="~/images/products/@p.Image" alt="@p.Name" class="img-fluid rounded" style="max-width: 120px; min-width: 120px;"></td>
+                                                <td class="product-name fw-bold">@p.Name</td>
+                                                <td class="product-price">$@p.Price.ToString("0.00")</td>
+                                                <td class="product-quantity">
+                                                    <div class="input-group input-group-sm" style="max-width: 120px;">
+                                                        @{
+                                                            var quantity = cartItems?.FirstOrDefault(c => c.Id == p.Id)?.Quantity ?? 1;
+                                                        }
+                                                        <button class="btn btn-outline-secondary border py-1 px-2" type="button" onclick="decreaseQuantity(@p.Id)">-</button>
+                                                        <input type="number" class="form-control text-center border py-3 mx-1" min="1" value="@quantity" data-id="@p.Id" onchange="updateCartItem(@p.Id, this.value)">
+                                                        <button class="btn btn-outline-secondary border py-1 px-2" type="button" onclick="increaseQuantity(@p.Id)">+</button>
+                                                    </div>
+                                                </td>
+                                                <td class="product-total fw-bold">$@((p.Price * quantity).ToString("0.00"))</td>
+                                                <td class="product-remove">
+                                                    <button class="btn btn-sm btn-outline-white remove-item" onclick="removeFromCart(@p.Id)" data-id="@p.Id">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow">
+                        <div class="card-header bg-dark text-white">
+                            <h3 class="card-title mb-0 text-white">Order Summary</h3>
+                        </div>
+                        <div class="card-body p-4">
+                            @{
+                                decimal subtotal = 0;
+                                if (cartItems != null && Model.Any())
+                                {
+                                    foreach (var item in cartItems)
+                                    {
+                                        var product = Model.FirstOrDefault(p => p.Id == item.Id);
+                                        if (product != null)
+                                        {
+                                            subtotal += product.Price * item.Quantity;
+                                        }
+                                    }
+                                }
+                                decimal shipping = Model.Any() ? 10 : 0;
+                                decimal total = subtotal + shipping;
+                            }
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold">Subtotal:</span>
+                                <span class="fw-bold" id="subtotal-amount">@subtotal.ToString("0.00")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold">Shipping:</span>
+                                <span class="fw-bold" id="shipping-amount">@shipping.ToString("0.00")</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-4">
+                                <span class="fw-bold fs-5">Total:</span>
+                                <span class="fw-bold fs-5" id="total-amount">@total.ToString("0.00")</span>
+                            </div>
+                            <div class="d-grid gap-3">
+                                <a asp-action="Stores" asp-controller="Stores" class="btn btn-lg btn-outline-secondary mr-3">
+                                    <i class="fas fa-arrow-left"></i>Shop more
+                                </a>
+                                <button type="button" class="btn btn-lg btn-orange ml-3" id="checkout-button">
+                                    <i class="fas fa-shopping-cart"></i>Check Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
-<!-- cart -->
-<div class="cart-section mt-150 mb-150">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 col-md-12">
-				<div class="cart-table-wrap">
-					<table class="cart-table">
-						<thead class="cart-table-head">
-							<tr class="table-head-row">
-								<th class="product-remove"></th>
-								<th class="product-image">Product Image</th>
-								<th class="product-name">Name</th>
-								<th class="product-price">Price</th>
-								<th class="product-quantity">Quantity</th>
-								<th class="product-total">Total</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr class="table-body-row">
-								<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-								<td class="product-image"><img src="assets/img/products/product-img-1.jpg" alt=""></td>
-								<td class="product-name">Strawberry</td>
-								<td class="product-price">$85</td>
-								<td class="product-quantity"><input type="number" placeholder="0"></td>
-								<td class="product-total">1</td>
-							</tr>
-							<tr class="table-body-row">
-								<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-								<td class="product-image"><img src="assets/img/products/product-img-2.jpg" alt=""></td>
-								<td class="product-name">Berry</td>
-								<td class="product-price">$70</td>
-								<td class="product-quantity"><input type="number" placeholder="0"></td>
-								<td class="product-total">1</td>
-							</tr>
-							<tr class="table-body-row">
-								<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-								<td class="product-image"><img src="assets/img/products/product-img-3.jpg" alt=""></td>
-								<td class="product-name">Lemon</td>
-								<td class="product-price">$35</td>
-								<td class="product-quantity"><input type="number" placeholder="0"></td>
-								<td class="product-total">1</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<div class="col-lg-4">
-				<div class="total-section">
-					<table class="total-table">
-						<thead class="total-table-head">
-							<tr class="table-total-row">
-								<th>Total</th>
-								<th>Price</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr class="total-data">
-								<td><strong>Subtotal: </strong></td>
-								<td>$500</td>
-							</tr>
-							<tr class="total-data">
-								<td><strong>Shipping: </strong></td>
-								<td>$45</td>
-							</tr>
-							<tr class="total-data">
-								<td><strong>Total: </strong></td>
-								<td>$545</td>
-							</tr>
-						</tbody>
-					</table>
-					<div class="cart-buttons">
-						<a href="cart.html" class="boxed-btn">Update Cart</a>
-						<a href="checkout.html" class="boxed-btn black">Check Out</a>
-					</div>
-				</div>
-
-				<div class="coupon-section">
-					<h3>Apply Coupon</h3>
-					<div class="coupon-form-wrap">
-						<form action="index.html">
-							<p><input type="text" placeholder="Coupon"></p>
-							<p><input type="submit" value="Apply"></p>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
 <!-- end cart -->
+
+

@@ -39,7 +39,7 @@
 						<form action="index.html">
 							<input type="number" placeholder="0">
 						</form>
-						<a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+						<a asp-action="AddProduct" asp-controller="Cart" asp-route-id="@Model.Id"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
 						<div class="tag-section">
 							<h4>Tags</h4>
 							<ul>

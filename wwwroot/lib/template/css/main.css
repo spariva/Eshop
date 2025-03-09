@@ -159,6 +159,11 @@ p {
         margin: 0;
     }
 
+.small-orange-text {
+    color: #ff6a00;
+    font-size: 1.25rem;
+}
+
 /* -----------------------------------------------------------------------------
 
 # All Common Styles
@@ -819,10 +824,6 @@ a.mobile-show {
 }
 
 .search-bar-tablecell input:-ms-input-placeholder {
-    color: #fff;
-}
-
-.search-bar-tablecell input::-ms-input-placeholder {
     color: #fff;
 }
 
@@ -2604,31 +2605,32 @@ tr.total-data td strong {
     margin-right: 32px;
 }
 
-.cart-buttons {
-    margin-top: 30px;
-}
+/* Cart personalized */
 
-    .cart-buttons a:first-child {
-        margin-right: 20px;
-    }
-
-.coupon-section {
-    margin-top: 50px;
-}
-
-    .coupon-section h3 {
-        font-size: 20px;
-        font-weight: 500;
-    }
-
-.coupon-form-wrap form p input[type=text] {
-    border: 1px solid #ddd;
+.table th {
+    font-weight: 600;
     color: #051922;
     padding: 15px;
-    width: 100%;
-    border-radius: 5px;
-    font-size: 15px;
 }
+
+.table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+    .table tbody tr:hover {
+        background-color: rgba(242, 129, 35, 0.05);
+    }
+
+.input-group .btn {
+    z-index: 0;
+}
+
+
 
 .card.single-accordion {
     margin-bottom: 15px;
@@ -2810,4 +2812,15 @@ table.order-details {
     .btn-orange:hover {
         background-color: #051922;
         color: #F28123;
+    }
+
+.btn-outline-white {
+    color: #ff6a00;
+    border-color: #ff6a00;
+}
+
+    .btn-outline-white:hover {
+        background-color: #ff6a00;
+        border-color: #ff6a00;
+        color: white;
     }

@@ -3,7 +3,6 @@
 
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section" style="background-image: url('/images/stores/@Model.Store.Image')">
-    @*<img src="~/images/stores/artesanshop.jpg" alt="Banner" class="breadcrumb-bg-img" />*@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
@@ -60,37 +59,227 @@
                 {
                     var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
                     <div class="col-lg-4 col-md-6 text-center @categoryClasses">
-                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id">
-                            <div class="single-product-item">
+                        <div class="single-product-item">
+                            <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id">
                                 <div class="product-image">
                                     <img src="~/images/products/@product.Image" alt="shop banner @product.Name">
                                 </div>
                                 <h3>@product.Name</h3>
                                 <p class="product-price">@product.Price </p>
-                                <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn">
-                                    <i class="fas fa-cart"></i> Add to cart
-                                </a>
+                            </a>
+
+                            <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn mx-2">
+                                <i class="fa-solid fa-eye"></i> See more
+                            </a>
+                            <button onclick="addToCart(@product.Id)" class="cart-btn mx-2">
+                                <i class="fa-solid fa-cart-shopping"></i> Add item
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 product-lists">
+                @foreach (Product product in Model.Products)
+                {
+                    var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
+                    <div class="col product-card @categoryClasses">
+                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id">
+                            <div class="card h-100 shadow-sm single-product-item">
+                                <div class="card-img-container p-3">
+                                    <img src="~/images/products/@product.Image" class="card-img-top" alt="@product.Name">
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text price-text fw-bold">@product.Price</p>
+                                    <div class="mt-auto d-flex justify-content-between">
+                                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn">
+                                            <i class="fa-solid fa-eye"></i> See more
+                                        </a>
+                                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" class="cart-btn">
+                                            <i class="fa-solid fa-cart-shopping"></i> Add item
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </a>
                     </div>
                 }
             </div>
 
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="pagination-wrap">
-                            <ul>
-                                <li><a href="#">Prev</a></li>
-                                <li><a href="#">1</a></li>
-                                <li><a class="active" href="#">2</a></li>
-                                <li><a href="#">3</a></li>
-                                <li><a href="#">Next</a></li>
-                            </ul>
+
+            <style>
+                .card-img-container {
+                    height: 200px;
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #f8f9fa;
+                }
+
+                    .card-img-container img {
+                        max-height: 100%;
+                        object-fit: contain;
+                        padding: 10px;
+                    }
+
+                .small-orange-text {
+                    color: #ff6a00;
+                    font-size: 1.25rem;
+                }
+            </style>
+
+            <div class="container">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 product-lists">
+                    @foreach (Product product in Model.Products)
+                    {
+                        var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
+                        <div class="col product-card @categoryClasses">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-img-container">
+                                    <img src="~/images/products/@product.Image" class="card-img-top" alt="@product.Name">
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text price-text fw-bold">$@product.Price</p>
+                                    <div class="mt-auto d-flex justify-content-between">
+                                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-eye"></i> See more
+                                        </a>
+                                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" class="btn btn-primary">
+                                            <i class="fa-solid fa-cart-shopping"></i> Add item
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    }
+                </div>
+            </div>
+
+            <style>
+                .card-img-container {
+                    height: 200px;
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #f8f9fa;
+                }
+
+                    .card-img-container img {
+                        max-height: 100%;
+                        object-fit: contain;
+                        padding: 10px;
+                    }
+
+                .price-text {
+                    color: #ff6a00;
+                    font-size: 1.25rem;
+                }
+
+                .btn-primary {
+                    background-color: #ff6a00;
+                    border-color: #ff6a00;
+                }
+
+                    .btn-primary:hover {
+                        background-color: #e05e00;
+                        border-color: #e05e00;
+                    }
+
+                .btn-outline-primary {
+                    color: #ff6a00;
+                    border-color: #ff6a00;
+                }
+
+                    .btn-outline-primary:hover {
+                        background-color: #ff6a00;
+                        border-color: #ff6a00;
+                        color: white;
+                    }
+            </style>
+            <div class="container-fluid px-4">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 product-lists">
+                    @foreach (Product product in Model.Products)
+                    {
+                        var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
+                        <div class="col product-card @categoryClasses">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-img-container">
+                                    <img src="~/images/products/@product.Image" class="card-img-top" alt="@product.Name">
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text price-text fw-bold">$@product.Price</p>
+                                    <div class="mt-auto d-flex justify-content-center gap-2">
+                                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn">
+                                            <i class="fa-solid fa-eye"></i> See more
+                                        </a>
+                                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" class="cart-btn">
+                                            <i class="fa-solid fa-cart-shopping"></i> Add item
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <style>
+                .card-img-container {
+                    height: 200px;
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #f8f9fa;
+                }
+
+                    .card-img-container img {
+                        max-height: 100%;
+                        object-fit: contain;
+                        padding: 10px;
+                    }
+
+                .price-text {
+                    color: #ff6a00;
+                    font-size: 1.25rem;
+                }
+
+                .cart-btn {
+                    font-family: 'Poppins', sans-serif;
+                    display: inline-block;
+                    background-color: #F28123;
+                    color: #fff;
+                    padding: 10px 20px;
+                    text-decoration: none;
+                    transition: 0.3s;
+                }
+
+                    .cart-btn:hover {
+                        background-color: #e07016;
+                        color: #fff;
+                    }
+            </style>
+
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="pagination-wrap">
+                        <ul>
+                            <li><a href="#">Prev</a></li>
+                            <li><a href="#">1</a></li>
+                            <li><a class="active" href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">Next</a></li>
+                        </ul>
                     </div>
                 </div>
-            
+            </div>
+
         }
     </div>
 </div>
-    <!-- end products -->
+<!-- end products -->

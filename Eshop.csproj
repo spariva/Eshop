@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\images\products\NewFolder\**" />
+    <Content Remove="wwwroot\images\products\NewFolder\**" />
+    <EmbeddedResource Remove="wwwroot\images\products\NewFolder\**" />
+    <None Remove="wwwroot\images\products\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
@@ -18,10 +25,10 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Stripe.net" Version="47.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\images\products\NewFolder\" />
     <Folder Include="wwwroot\images\stores\" />
   </ItemGroup>
 
