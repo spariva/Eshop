@@ -1,0 +1,38 @@
+﻿@model User
+
+@{
+    Store store = (Store)ViewBag.Store;
+}
+
+<partial name="_Breadcrumb" />
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="card-title mb-0 ">Profile @Model.Id</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            @* img *@
+                            @Model.Name
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (store != null) 
+            {
+                <h4>@store.Name</h4>
+                <img src="~/images/stores/@store.Image" alt="@store.Name"/>
+                <a asp-controller="Stores" asp-action="StoreDetails" asp-route-id="@store.Id">My store</a>
+                <button>My stripe account</button>
+            }else{
+                <button>Create store</button>
+            }
+
+        </div>
+    </div>
+</div>

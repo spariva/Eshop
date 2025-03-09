@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Stripe;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eshop.Models
@@ -14,7 +15,7 @@ namespace Eshop.Models
         [Column("EMAIL")]
         public string Email { get; set; }
         [Column("PASSWORD_HASH")]
-        public string PasswordHash { get; set; }
+        public byte[] PasswordHash { get; set; }
         [Column("SALT")]
         public string Salt { get; set; }
         [Column("TELEPHONE")]

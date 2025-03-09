@@ -14,7 +14,7 @@ namespace Eshop.Repositories
             this.context = context;
         }
 
-#region Stores
+        #region Stores
         public async Task<List<Store>> GetStoresAsync()
         {
             var consulta = from datos in this.context.Stores
@@ -107,7 +107,7 @@ namespace Eshop.Repositories
         #endregion
 
 
-#region product categories
+        #region product categories
         public async Task<List<Category>> GetAllCategoriesAsync()
         {
             var consulta = from datos in this.context.Categories
@@ -138,7 +138,8 @@ namespace Eshop.Repositories
         public async Task RemoveCategoryToProductAsync(int productId, int categoryId)
         {
             var prodCat = await this.context.ProdCats.FirstOrDefaultAsync(pc => pc.ProductId == productId && pc.CategoryId == categoryId);
-            if (prodCat != null) {
+            if (prodCat != null)
+            {
                 this.context.ProdCats.Remove(prodCat);
                 await this.context.SaveChangesAsync();
             }
@@ -146,7 +147,7 @@ namespace Eshop.Repositories
         #endregion
 
 
-#region products
+        #region products
         public async Task<List<Product>> GetAllProductsAsync()
         {
             var consulta = await this.context.Products.ToListAsync();
@@ -326,6 +327,6 @@ namespace Eshop.Repositories
         //    await this.context.SaveChangesAsync();
         //}
 
-#endregion
+        #endregion
     }
 }

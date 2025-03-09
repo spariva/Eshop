@@ -16,13 +16,13 @@
                         <nav class="main-menu">
                             <ul>
                                 <li class="current-list-item">
-                                    <a href="#">Home</a>
+                                    <a asp-action="Home" asp-controller="Home">Home</a>
                                     <ul class="sub-menu">
                                         <li><a asp-action="Home" asp-controller="Home">Home</a></li>
                                         @* <li><a href="index_2.html">Slider Home</a></li> *@
                                     </ul>
                                 </li>
-                                <li><a href="about.html">About</a></li>
+                                <li><a asp-action="Home" asp-controller="AboutUs">About us</a></li>
                                 <li>
                                     <a href="#">Pages</a>
                                     <ul class="sub-menu">
@@ -57,6 +57,7 @@
                                     <div class="header-icons">
                                         <a class="shopping-cart" asp-controller="Cart" asp-action="Cart"><i class="fas fa-shopping-cart"></i></a>
                                         <a class="mobile-hide search-bar-icon" href="#"><i class="fas fa-search"></i></a>
+                                        <partial name="_UserMenu" />
                                     </div>
                                 </li>
                             </ul>
