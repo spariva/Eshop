@@ -25,7 +25,7 @@ namespace Eshop.Repositories
         public async Task<User> FindUserAsync(int id)
         {
             var consulta = from datos in this.context.Users
-                           where datos.Id == 1
+                           where datos.Id == id
                            select datos;
 
             User user = await consulta.FirstOrDefaultAsync();

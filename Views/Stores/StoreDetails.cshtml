@@ -1,6 +1,12 @@
 ﻿@model StoreView
 
 
+@{
+    int idSession = Context.Session.GetObject<int>("UserId");
+    bool isOwner = Model.Store.UserId == idSession;
+}
+
+
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section" style="background-image: url('/images/stores/@Model.Store.Image')">
     <div class="container">
@@ -18,15 +24,10 @@
 
 <div>
     <p>Email: @Model.Store.Email</p>
-    @if (int.TryParse(Context.Session.GetString("User"), out int userId) && userId == Model.Store.UserId)
+    @if (isOwner)
     {
         <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id" class="btn btn-outline-warning">Update store</a>
-    }
-    else
-    {
-        <p>Not your store</p>
-        <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id" class="btn btn-outline-warning">Update store</a>
-
+        <a asp-controller="Stores" asp-action="ProductCreate" class="btn btn-outline-warning">Update store</a>
     }
 
 </div>

@@ -66,7 +66,7 @@ namespace Eshop.Repositories
         }
 
 
-        public async Task<Store> CreateStoreAsync(string name, string email, string image, string category)
+        public async Task<Store> CreateStoreAsync(string name, string email, string image, string category, int userId)
         {
             int maxId = await this.context.Stores.MaxAsync(x => x.Id);
 
@@ -77,7 +77,7 @@ namespace Eshop.Repositories
                 Email = email,
                 Image = image,
                 Category = category,
-                UserId = 1
+                UserId = userId
             };
 
             await this.context.Stores.AddAsync(s);
@@ -210,13 +210,13 @@ namespace Eshop.Repositories
         }
 
         #region CRUD Products
-        public async Task<Product> CreateProductAsync(string name, string description, string image, decimal price, int stock, List<int> categories)
+        public async Task<Product> CreateProductAsync(string name, int storeId, string description, string image, decimal price, int stock, List<int> categories)
         {
             int maxId = await this.context.Products.MaxAsync(x => x.Id);
             Product p = new Product
             {
                 Id = maxId + 1,
-                StoreId = 1,
+                StoreId = storeId,
                 Name = name,
                 Description = description,
                 Image = image,

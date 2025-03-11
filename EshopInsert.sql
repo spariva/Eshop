@@ -1,7 +1,8 @@
 INSERT INTO USERS (USER_ID, NAME, EMAIL, PASSWORD_HASH, SALT, TELEPHONE, ADDRESS)
 VALUES
 (1, 'Alice Smith', 'alice.smith@example.com', 0x1234, 'salt123', '123456789', '123 Main St'),
-(2, 'Bob Johnson', 'bob.johnson@example.com', 0x5678, 'salt456', '987654321', '456 Elm St');
+(2, 'Bob Johnson', 'bob.johnson@example.com', 0x5678, 'salt456', '987654321', '456 Elm St'),
+(3, 'Maki', 'maki@example.com', 0x5679, 'salt234', '937654321', 'lope rueda');
 
 
 INSERT INTO STORES (STORE_ID, STORE_NAME, EMAIL, IMAGE, CATEGORY, USER_ID)
