@@ -173,7 +173,7 @@ namespace Eshop.Controllers
 
             // If we got this far, something failed; re-populate the categories
             var categories = await this.repoStores.GetAllCategoriesAsync();
-            ViewBag.Categories = categories.Select(c => new SelectListItem
+            ViewBag.Productcategories = categories.Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
                 Text = c.CategoryName
