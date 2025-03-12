@@ -12,52 +12,44 @@ namespace Eshop.Controllers
         private RepositoryUsers repoUsers;
         private const string UserKey = "UserId"; //if I change this, so I have to change it in the UserMenu partialview
 
-        public UsersController(RepositoryStores repoStores, RepositoryUsers repoUsers)
-        {
+        public UsersController(RepositoryStores repoStores, RepositoryUsers repoUsers) {
             this.repoStores = repoStores;
             this.repoUsers = repoUsers;
         }
 
-        public IActionResult Login()
-        {
-            HttpContext.Session.SetObject(UserKey, 1);
+        public IActionResult Login() {
+            HttpContext.Session.SetObject(UserKey, 3);
             return RedirectToAction("Profile");
 
         }
 
-        public IActionResult Register()
-        {
+        public IActionResult Register() {
             return RedirectToAction("Home", "Home");
         }
 
-        public IActionResult Logout()
-        {
+        public IActionResult Logout() {
             HttpContext.Session.Remove(UserKey);
             return RedirectToAction("Home", "Home");
         }
 
 
-        public async Task<IActionResult> Profile()
-        {
+        public async Task<IActionResult> Profile() {
             int userId = HttpContext.Session.GetObject<int>(UserKey);
 
-            if (userId == 0)
-            {
+            if (userId == 0) {
                 return RedirectToAction("Home", "Home");
             }
 
             User user = await this.repoUsers.FindUserAsync(userId);
-            if (user == null)
-            {
+            if (user == null) {
                 return RedirectToAction("Home", "Home");
             }
 
 
             Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
-            if (store != null)
-            {
-                ViewBag.Store = store;
-            }
+
+            ViewBag.Store = store;
+
 
             return View(user);
         }

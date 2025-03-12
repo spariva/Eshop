@@ -1,5 +1,13 @@
 ﻿@model Product
 
+@{
+	int idSession = Context.Session.GetObject<int>("UserId");
+	Store store = ViewBag.Store;
+
+	bool isOwner = store.UserId == idSession;
+}
+
+
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
 	<div class="container">
@@ -7,16 +15,10 @@
 			<div class="col-lg-8 offset-lg-2 text-center">
 				<div class="breadcrumb-text">
 					<h1>@Model.Name</h1>
+					<p>@store.Name</p>
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-12">
-		<a asp-controller="Stores" asp-action="ProductEdit" asp-route-id="@Model.Id" class="cart-btn">
-			<i class="fas fa-edit"></i> Editar producto
-		</a>
 	</div>
 </div>
 
@@ -39,7 +41,9 @@
 						<form action="index.html">
 							<input type="number" placeholder="0">
 						</form>
-						<a asp-action="AddProduct" asp-controller="Cart" asp-route-id="@Model.Id"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+						<button onclick="addToCart(@Model.Id)" class="btn btn-orange p-2 mx-2">
+							<i class="fa-solid fa-cart-shopping"></i> Add item
+						</button>
 						<div class="tag-section">
 							<h4>Tags</h4>
 							<ul>
@@ -50,6 +54,17 @@
 							</ul>
 						</div>
 					</div>
+					@if (isOwner)
+					{
+						<div class="mt-2 d-flex justify-content-center gap-2">
+							<a asp-controller="Stores" asp-action="ProductEdit" asp-route-id="@Model.Id" class="btn btn-outline-white mx-1">
+								<i class="fa-solid fa-pen-to-square"></i> Edit item
+							</a>
+							<a asp-controller="Stores" asp-action="DeleteEdit" asp-route-id="@Model.Id" class="btn btn-orange mx-1">
+								<i class="fa-solid fa-trash-can"></i> Delete item
+							</a>
+						</div>
+					}
 				</div>
 			</div>
 		</div>

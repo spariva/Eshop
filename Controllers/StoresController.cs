@@ -2,6 +2,7 @@
 using Eshop.Helpers;
 using Eshop.Models;
 using Eshop.Repositories;
+using Eshop.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -10,11 +11,14 @@ namespace Eshop.Controllers
     public class StoresController : Controller
     {
         private RepositoryStores repoStores;
+        private RepositoryUsers repoUsers;
         private HelperPathProvider helperPath;
+        private const string UserKey = "UserId";
 
-        public StoresController(RepositoryStores repoStores, HelperPathProvider helperPath) 
+        public StoresController(RepositoryStores repoStores, HelperPathProvider helperPath, RepositoryUsers repoUsers) 
         {
             this.repoStores = repoStores;
+            this.repoUsers = repoUsers;
             this.helperPath = helperPath;
         }
 
@@ -38,8 +42,17 @@ namespace Eshop.Controllers
             return View(storeView);
         }
 
-        public IActionResult StoreCreate()
+        public async Task<IActionResult> StoreCreate()
         {
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+
+            Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
+
+            if (storeSession != null) {
+                TempData["Message"] = "You already have a store";
+                return RedirectToAction("Users", "Profile");
+            }
+
             return View();
         }
 
@@ -56,14 +69,25 @@ namespace Eshop.Controllers
                 await image.CopyToAsync(stream);
             }
 
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+
             //Insert store
-            Store store = await this.repoStores.CreateStoreAsync(name, email, fileName, category.ToUpper());
+            Store store = await this.repoStores.CreateStoreAsync(name, email, fileName, category.ToUpper(), userId);
 
             return RedirectToAction("StoreDetails", new {id = store.Id} );
         }
 
         public async Task<IActionResult> StoreEdit(int id)
         {
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+
+            Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
+
+            if (storeSession == null ||  id != storeSession.Id) {
+                TempData["Message"] = "That was not your store to Edit";
+                return RedirectToAction("Profile", "Users");
+            }
+
             Store store = await this.repoStores.FindSimpleStoreAsync(id);
             return View(store);
         }
@@ -108,6 +132,15 @@ namespace Eshop.Controllers
 
         public async Task<IActionResult> StoreDelete(int id)
         {
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+
+            Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
+
+            if (storeSession == null || id != storeSession.Id) {
+                TempData["Message"] = "That was not your store to Delete!";
+                return RedirectToAction("Profile", "Users");
+            }
+
             await this.repoStores.DeleteStoreAsync(id);
             return RedirectToAction("Stores");
         }
@@ -125,6 +158,9 @@ namespace Eshop.Controllers
         public async Task<IActionResult> ProductDetails(int id)
         {
             Product product = await this.repoStores.FindProductAsync(id);
+            Store store = await this.repoStores.FindSimpleStoreAsync(product.StoreId);
+            ViewBag.Store = store;
+
             return View(product);
         }
 
@@ -143,6 +179,16 @@ namespace Eshop.Controllers
         [HttpPost]
         public async Task<IActionResult> ProductCreate(string name, string description, IFormFile image, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories)
         {
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
+
+            if(store == null) {
+                TempData["Message"] = "Create a store before!";
+                return RedirectToAction("Profile", "Users");
+            }
+
+            int storeId = store.Id;
+
             if (ModelState.IsValid)
             {
                 // Save the image 
@@ -165,7 +211,7 @@ namespace Eshop.Controllers
                 }
 
                 // Insert the product
-                var product = await this.repoStores.CreateProductAsync(name, description, fileName, price, stockQuantity, selectedCategories);
+                var product = await this.repoStores.CreateProductAsync(name, storeId, description, fileName, price, stockQuantity, selectedCategories);
 
                 return RedirectToAction("ProductDetails", new { id = product.Id });
             }
@@ -185,7 +231,20 @@ namespace Eshop.Controllers
 
         public async Task<IActionResult> ProductEdit(int id)
         {
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
+
+            if (store == null) {
+                TempData["Message"] = "Create a store before!";
+                return RedirectToAction("Profile", "Users");
+            }
+
             Product product = await this.repoStores.FindProductAsync(id);
+
+            if (product.StoreId != store.Id) {
+                TempData["Message"] = "That was not your product to Edit";
+                return RedirectToAction("Profile", "Users");
+            }
 
             List<Category> categories = await this.repoStores.GetAllCategoriesAsync();
             ViewBag.Productcategories = categories.Select(c => new SelectListItem
@@ -236,6 +295,19 @@ namespace Eshop.Controllers
         {
             Product p = await this.repoStores.FindProductAsync(id);
             int storeId = p.StoreId;
+
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
+
+            if (store == null) {
+                TempData["Message"] = "Create a store before!";
+                return RedirectToAction("Profile", "User");
+            }
+
+            if (p.StoreId != store.Id) {
+                TempData["Message"] = "That was not your product to Delete";
+                return RedirectToAction("Profile", "Users");
+            }
 
             await this.repoStores.DeleteProductAsync(p);
             return RedirectToAction("StoreDetails", storeId);
