@@ -1,6 +1,7 @@
 ﻿@model User
 
 @{
+
     // bool hasStore = ViewBag.Store != null;
     // Store store = hasStore ? (Store)ViewBag.Store : null;
     bool hasStore = ViewBag.Store != null;
@@ -9,6 +10,7 @@
 }
 
 <partial name="_Breadcrumb" />
+
 
 <div class="container py-4">
     <!-- User Profile Information (Top Row) -->
@@ -72,6 +74,7 @@
                 <h4 class="card-title mb-0 fs-5 text-white">My Store</h4>
             </div>
             <div class="card-body d-flex flex-column">
+
                 @if (hasStore)
                 {
                     Store store = ViewBag.Store as Store;
@@ -103,7 +106,7 @@
                             <h5 class="mt-3">You don't have a store yet</h5>
                             <p class="text-muted">Create your own store and start selling your products!</p>
                         </div>
-                        <a asp-controller="Stores" asp-action="StoreCreate" asp-route-userId="@Model.Id" class="btn btn-primary">
+                        <a asp-controller="Stores" asp-action="StoreCreate" class="btn btn-primary btn-sm">
                             <i class="bi bi-plus-circle me-1"></i> Create Store
                         </a>
                     </div>
@@ -155,11 +158,12 @@
                             </a>
                         </div>
                     }
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 </div>
+
 

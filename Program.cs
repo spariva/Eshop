@@ -4,7 +4,7 @@ using Eshop.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
-//using Stripe;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
 });
 
-//StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
 builder.Services.AddSingleton<HelperPathProvider>();

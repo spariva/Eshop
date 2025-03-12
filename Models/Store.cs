@@ -23,5 +23,7 @@ namespace Eshop.Models
         public string Category { get; set; }
         [Column("USER_ID")]
         public int UserId { get; set; }
+        [Column("STRIPE_ID")]
+        public string StripeId { get; set; }
     }
 }

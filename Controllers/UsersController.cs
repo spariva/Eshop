@@ -18,7 +18,7 @@ namespace Eshop.Controllers
         }
 
         public IActionResult Login() {
-            HttpContext.Session.SetObject(UserKey, 3);
+            HttpContext.Session.SetObject(UserKey, 4);
             return RedirectToAction("Profile");
 
         }

@@ -66,7 +66,7 @@ namespace Eshop.Repositories
         }
 
 
-        public async Task<Store> CreateStoreAsync(string name, string email, string image, string category, int userId)
+        public async Task<Store> CreateStoreAsync(string name, string email, string image, string category, int userId, string stripeId)
         {
             int maxId = await this.context.Stores.MaxAsync(x => x.Id);
 
@@ -77,7 +77,8 @@ namespace Eshop.Repositories
                 Email = email,
                 Image = image,
                 Category = category,
-                UserId = userId
+                UserId = userId,
+                StripeId = stripeId
             };
 
             await this.context.Stores.AddAsync(s);

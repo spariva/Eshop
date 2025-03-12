@@ -83,7 +83,7 @@
                 @foreach (Product product in Model.Products)
                 {
                     var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
-                    <div class="col-lg-3 col-md-4 col-sm-2 product-card @categoryClasses">
+                    <div class="col-lg-3 col-md-4 col-sm-2 product-card pt-2 mt-2 @categoryClasses">
                         <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id">
                             <div class="card h-100 shadow-sm">
                                 <div class="card-img-container p-2">

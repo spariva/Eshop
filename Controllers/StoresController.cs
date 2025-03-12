@@ -3,8 +3,10 @@ using Eshop.Helpers;
 using Eshop.Models;
 using Eshop.Repositories;
 using Eshop.Extensions;
+using Stripe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Product = Eshop.Models.Product; //To avoid ambiguity with Eshop.Models.Product and Stripe.Product
 
 namespace Eshop.Controllers
 {
@@ -15,35 +17,30 @@ namespace Eshop.Controllers
         private HelperPathProvider helperPath;
         private const string UserKey = "UserId";
 
-        public StoresController(RepositoryStores repoStores, HelperPathProvider helperPath, RepositoryUsers repoUsers) 
-        {
+        public StoresController(RepositoryStores repoStores, HelperPathProvider helperPath, RepositoryUsers repoUsers) {
             this.repoStores = repoStores;
             this.repoUsers = repoUsers;
             this.helperPath = helperPath;
         }
 
         #region Stores CRUD
-        public async Task<IActionResult> Stores()
-        {
+        public async Task<IActionResult> Stores() {
             List<Store> stores = await this.repoStores.GetStoresAsync();
             ViewBag.Categories = stores.Select(x => x.Category).Distinct().ToList();
             return View(stores);
         }
 
-        public async Task<IActionResult> StoreDetails(int id)
-        {
+        public async Task<IActionResult> StoreDetails(int id) {
             //Find store and add their products loading the ProdCats and Categories
             StoreView storeView = await this.repoStores.FindStoreAsync(id);
-            if (storeView == null)
-            {
+            if (storeView == null) {
                 return RedirectToAction("Stores");
             }
 
             return View(storeView);
         }
 
-        public async Task<IActionResult> StoreCreate()
-        {
+        public async Task<IActionResult> StoreCreate() {
             int userId = HttpContext.Session.GetObject<int>(UserKey);
 
             Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
@@ -57,33 +54,132 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> StoreCreate(string name, string email, IFormFile image, string category)
-        {
+        public async Task<IActionResult> StoreCreate(string name, string email, IFormFile image, string category) {
             //Create route and save image
             string fileName = image.FileName;
 
             string path = this.helperPath.MapPath(fileName, Folder.Stores);
 
-            using (Stream stream = new FileStream(path, FileMode.Create))
-            {
+            using (Stream stream = new FileStream(path, FileMode.Create)) {
                 await image.CopyToAsync(stream);
             }
 
             int userId = HttpContext.Session.GetObject<int>(UserKey);
 
-            //Insert store
-            Store store = await this.repoStores.CreateStoreAsync(name, email, fileName, category.ToUpper(), userId);
+            // Create Stripe connected account
+            try {
+                var service = new AccountService();
 
-            return RedirectToAction("StoreDetails", new {id = store.Id} );
+                var options = new AccountCreateOptions
+                {
+                    Controller = new AccountControllerOptions
+                    {
+                        StripeDashboard = new AccountControllerStripeDashboardOptions
+                        {
+                            Type = "express"
+                        },
+                        Fees = new AccountControllerFeesOptions
+                        {
+                            Payer = "application"
+                        },
+                        Losses = new AccountControllerLossesOptions
+                        {
+                            Payments = "application"
+                        },
+                    },
+                };
+
+                Account account = service.Create(options);
+
+                //Insert store
+                Store store = await this.repoStores.CreateStoreAsync(name, email, fileName, category.ToUpper(), userId, account.Id);
+
+                // Create directly account link for onboarding
+                var accountLinkService = new AccountLinkService();
+                var accountLink = accountLinkService.Create(new AccountLinkCreateOptions
+                {
+                    Account = account.Id,
+                    ReturnUrl = Url.Action("OnboardingComplete", "Stores", new { id = store.Id }, Request.Scheme),
+                    RefreshUrl = Url.Action("RefreshOnboarding", "Stores", new { id = store.Id }, Request.Scheme),
+                    Type = "account_onboarding",
+                });
+
+                // Redirect to Stripe onboarding
+                return Redirect(accountLink.Url);
+
+                //var connectedAccountId = accountLinkPostBody.Account;
+                //var service = new AccountLinkService();
+
+                //AccountLink accountLink = service.Create(
+                //    new AccountLinkCreateOptions
+                //    {
+                //        Account = connectedAccountId,
+                //        ReturnUrl = $"http://localhost/return/{connectedAccountId}",
+                //        RefreshUrl = $"http://localhost/refresh/{connectedAccountId}",
+                //        Type = "account_onboarding",
+                //    }
+                //);
+
+                //return Json(new { url = accountLink.Url });
+            }
+            catch (Exception ex) {
+                Console.Write("An error occurred when calling the Stripe API to create an account:  " + ex.Message);
+                Response.StatusCode = 500;
+                return Json(new { error = ex.Message });
+            }
         }
 
-        public async Task<IActionResult> StoreEdit(int id)
-        {
+        [HttpGet("Stores/OnboardingComplete/{id}")]
+        public async Task<IActionResult> OnboardingComplete(int id) {
+            var store = await this.repoStores.FindSimpleStoreAsync(id);
+            if (store == null) {
+                return NotFound();
+            }
+
+            // Verify this user owns the store
+            //if (store.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier)) {
+            //    return Forbid();
+            //}
+            if (store.UserId != HttpContext.Session.GetObject<int>(UserKey)) {
+                return Forbid();
+            }
+
+            // Show success page or redirect to store dashboard
+            return RedirectToAction("StoreDetails", new { id = store.Id });
+        }
+
+        [HttpGet("Stores/RefreshOnboarding/{id}")]
+        public async Task<IActionResult> RefreshOnboarding(int id) {
+            var store = await this.repoStores.FindSimpleStoreAsync(id);
+            if (store == null) {
+                return NotFound();
+            }
+
+            // Verify this user owns the store
+            if (store.UserId != HttpContext.Session.GetObject<int>(UserKey)) {
+                return Forbid();
+            }
+
+            // Create a new account link
+            var accountLinkService = new AccountLinkService();
+            var accountLink = accountLinkService.Create(new AccountLinkCreateOptions
+            {
+                Account = store.StripeId,
+                ReturnUrl = Url.Action("OnboardingComplete", "Stores", new { id = store.Id }, Request.Scheme),
+                RefreshUrl = Url.Action("RefreshOnboarding", "Stores", new { id = store.Id }, Request.Scheme),
+                Type = "account_onboarding",
+            });
+
+            return Redirect(accountLink.Url);
+        }
+
+
+        public async Task<IActionResult> StoreEdit(int id) {
             int userId = HttpContext.Session.GetObject<int>(UserKey);
 
             Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
-            if (storeSession == null ||  id != storeSession.Id) {
+            if (storeSession == null || id != storeSession.Id) {
                 TempData["Message"] = "That was not your store to Edit";
                 return RedirectToAction("Profile", "Users");
             }
@@ -93,33 +189,27 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> StoreEdit(int id, string name, string email, IFormFile image, string oldimage, string category)
-        {
-            try
-            {
+        public async Task<IActionResult> StoreEdit(int id, string name, string email, IFormFile image, string oldimage, string category) {
+            try {
                 //Update image
-                if (image != null)
-                {
+                if (image != null) {
                     string fileName = image.FileName;
                     string path = this.helperPath.MapPath(fileName, Folder.Stores);
-                    using (Stream stream = new FileStream(path, FileMode.Create))
-                    {
+                    using (Stream stream = new FileStream(path, FileMode.Create)) {
                         await image.CopyToAsync(stream);
                     }
 
                     await this.repoStores.UpdateStoreAsync(id, name, email, fileName, category.ToUpper());
 
                 }
-                else
-                {
+                else {
                     await this.repoStores.UpdateStoreAsync(id, name, email, oldimage, category.ToUpper());
                 }
 
 
                 return RedirectToAction("StoreDetails", new { id = id });
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 // Log the exception (you can use any logging framework)
                 Console.WriteLine($"Error updating store: {ex.Message}");
                 // Optionally, add a user-friendly error message to the view
@@ -130,8 +220,7 @@ namespace Eshop.Controllers
             }
         }
 
-        public async Task<IActionResult> StoreDelete(int id)
-        {
+        public async Task<IActionResult> StoreDelete(int id) {
             int userId = HttpContext.Session.GetObject<int>(UserKey);
 
             Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
@@ -149,14 +238,12 @@ namespace Eshop.Controllers
         #endregion
 
         #region Products CRUD
-        public async Task<IActionResult> ProductList()
-        {
+        public async Task<IActionResult> ProductList() {
             List<Product> products = await this.repoStores.GetAllProductsAsync();
             return View(products);
         }
 
-        public async Task<IActionResult> ProductDetails(int id)
-        {
+        public async Task<IActionResult> ProductDetails(int id) {
             Product product = await this.repoStores.FindProductAsync(id);
             Store store = await this.repoStores.FindSimpleStoreAsync(product.StoreId);
             ViewBag.Store = store;
@@ -164,9 +251,8 @@ namespace Eshop.Controllers
             return View(product);
         }
 
-        public async Task<IActionResult> ProductCreate()
-        {
-            List<Category> categories= await this.repoStores.GetAllCategoriesAsync();
+        public async Task<IActionResult> ProductCreate() {
+            List<Category> categories = await this.repoStores.GetAllCategoriesAsync();
             ViewBag.Productcategories = categories.Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
@@ -177,34 +263,29 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProductCreate(string name, string description, IFormFile image, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories)
-        {
+        public async Task<IActionResult> ProductCreate(string name, string description, IFormFile image, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories) {
             int userId = HttpContext.Session.GetObject<int>(UserKey);
             Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
-            if(store == null) {
+            if (store == null) {
                 TempData["Message"] = "Create a store before!";
                 return RedirectToAction("Profile", "Users");
             }
 
             int storeId = store.Id;
 
-            if (ModelState.IsValid)
-            {
+            if (ModelState.IsValid) {
                 // Save the image 
                 string fileName = image.FileName;
                 string path = this.helperPath.MapPath(fileName, Folder.Products);
-                using (Stream stream = new FileStream(path, FileMode.Create))
-                {
+                using (Stream stream = new FileStream(path, FileMode.Create)) {
                     await image.CopyToAsync(stream);
                 }
 
                 // Handle new categories
-                if (!string.IsNullOrEmpty(newCategories))
-                {
+                if (!string.IsNullOrEmpty(newCategories)) {
                     var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToUpper()).ToList();
-                    foreach (var categoryName in newCategoryNames)
-                    {
+                    foreach (var categoryName in newCategoryNames) {
                         var category = await this.repoStores.FindOrCreateCategoryAsync(categoryName);
                         selectedCategories.Add(category.Id);
                     }
@@ -229,8 +310,7 @@ namespace Eshop.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ProductEdit(int id)
-        {
+        public async Task<IActionResult> ProductEdit(int id) {
             int userId = HttpContext.Session.GetObject<int>(UserKey);
             Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
@@ -257,31 +337,25 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProductEdit(int id, string name, string description, IFormFile image, string oldimage, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories)
-        {
-            if (!string.IsNullOrEmpty(newCategories))
-            {
+        public async Task<IActionResult> ProductEdit(int id, string name, string description, IFormFile image, string oldimage, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories) {
+            if (!string.IsNullOrEmpty(newCategories)) {
                 var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToUpper()).ToList();
-                foreach (var categoryName in newCategoryNames)
-                {
+                foreach (var categoryName in newCategoryNames) {
                     var category = await this.repoStores.FindOrCreateCategoryAsync(categoryName);
                     selectedCategories.Add(category.Id);
                 }
             }
 
-            if (image != null)
-            {
+            if (image != null) {
                 string fileName = image.FileName;
                 string path = this.helperPath.MapPath(fileName, Folder.Products);
-                using (Stream stream = new FileStream(path, FileMode.Create))
-                {
+                using (Stream stream = new FileStream(path, FileMode.Create)) {
                     await image.CopyToAsync(stream);
                 }
 
                 await this.repoStores.UpdateProductAsync(id, name, description, fileName, price, stockQuantity, selectedCategories);
             }
-            else
-            {
+            else {
                 await this.repoStores.UpdateProductAsync(id, name, description, oldimage, price, stockQuantity, selectedCategories);
             }
             return RedirectToAction("ProductDetails", new { id = id });
@@ -291,8 +365,7 @@ namespace Eshop.Controllers
         }
 
         //First I find the product to get the id, so I pass the Product to not call twice the database
-        public async Task<IActionResult> ProductDelete(int id)
-        {
+        public async Task<IActionResult> ProductDelete(int id) {
             Product p = await this.repoStores.FindProductAsync(id);
             int storeId = p.StoreId;
 
@@ -316,5 +389,7 @@ namespace Eshop.Controllers
 
 
         #endregion
+
+
     }
 }
