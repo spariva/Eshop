@@ -249,14 +249,18 @@ namespace Eshop.Repositories
             p.Price = price;
             p.StockQuantity = stock;
 
-            foreach (int cat in categories)
-            {
-                ProdCat pc = new ProdCat
-                {
-                    ProductId = p.Id,
-                    CategoryId = cat
-                };
-                await this.context.ProdCats.AddAsync(pc);
+            foreach (int cat in categories) {
+                ProdCat existingProdCat = await this.context.ProdCats
+                    .FirstOrDefaultAsync(pc => pc.ProductId == p.Id && pc.CategoryId == cat);
+
+                if (existingProdCat == null) {
+                    ProdCat pc = new ProdCat
+                    {
+                        ProductId = p.Id,
+                        CategoryId = cat
+                    };
+                    await this.context.ProdCats.AddAsync(pc);
+                }
             }
 
             await this.context.SaveChangesAsync();

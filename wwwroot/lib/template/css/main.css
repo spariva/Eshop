@@ -449,7 +449,7 @@ a.read-more-btn {
         color: #F28123;
     }
 
-a.boxed-btn, a.bordered-btn, a.cart-btn {
+a.boxed-btn, a.bordered-btn, .btn-orange-circle {
     border-radius: 50px;
 }
 
@@ -1071,16 +1071,6 @@ a.video-play-btn {
         color: #F28123;
     }
 
-.latest-news-bg {
-    -webkit-transition: 0.3s;
-    -o-transition: 0.3s;
-    transition: 0.3s;
-}
-
-.single-latest-news:hover .latest-news-bg {
-    opacity: 0.8;
-}
-
 a.tof-btn {
     -webkit-transition: 0.3s;
     -o-transition: 0.3s;
@@ -1100,21 +1090,6 @@ a.tof-btn {
         a.tof-btn:hover i {
             margin-left: 10px;
         }
-
-.single-latest-news {
-    -webkit-box-shadow: 0 0 20px #dddddd;
-    box-shadow: 0 0 20px #dddddd;
-    -webkit-transition: 0.3s;
-    -o-transition: 0.3s;
-    transition: 0.3s;
-}
-
-    .single-latest-news:hover {
-        -webkit-box-shadow: 0 0 0;
-        box-shadow: 0 0 0;
-        -webkit-box-shadow: none;
-        box-shadow: none;
-    }
 
 .single-logo-item {
     -webkit-transition: 0.3s;
@@ -1248,13 +1223,13 @@ div.owl-controls, .owl-controls div {
         box-shadow: none;
     }
 
-a.cart-btn {
+.btn-orange-circle {
     -webkit-transition: 0.3s;
     -o-transition: 0.3s;
     transition: 0.3s;
 }
 
-    a.cart-btn:hover {
+    .btn-orange-circle:hover {
         background-color: #051922;
         color: #F28123;
     }
@@ -1597,94 +1572,6 @@ div.owl-controls, .owl-controls div {
         border-radius: 999px;
     }
 
-/* -----------------------------------------------------------------------------
-
-# News Styles
-
------------------------------------------------------------------------------ */
-.news-bg-1 {
-    background-image: url(../img/latest-news/news-bg-1.jpg);
-}
-
-.news-bg-2 {
-    background-image: url(../img/latest-news/news-bg-2.jpg);
-}
-
-.news-bg-3 {
-    background-image: url(../img/latest-news/news-bg-3.jpg);
-}
-
-.news-bg-4 {
-    background-image: url(../img/latest-news/news-bg-4.jpg);
-}
-
-.news-bg-5 {
-    background-image: url(../img/latest-news/news-bg-5.jpg);
-}
-
-.news-bg-6 {
-    background-image: url(../img/latest-news/news-bg-6.jpg);
-}
-
-.latest-news-bg {
-    height: 200px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 10px;
-    background-color: #ddd;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.single-latest-news h3 {
-    font-size: 20px;
-    line-height: 1.25em;
-    font-weight: 600;
-}
-
-    .single-latest-news h3 a {
-        color: #051922;
-    }
-
-p.blog-meta span {
-    margin-right: 15px;
-    opacity: 0.6;
-    color: #051922;
-    font-size: 0.85em;
-}
-
-    p.blog-meta span:last-child {
-        margin-right: 0;
-    }
-
-    p.blog-meta span i {
-        margin-right: 5px;
-    }
-
-p.excerpt {
-    line-height: 1.8;
-    color: #555;
-}
-
-.latest-news a.boxed-btn {
-    margin-top: 80px;
-}
-
-.news-text-box {
-    padding: 25px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-}
-
-.single-latest-news {
-    margin-bottom: 30px;
-}
-
-.single-artcile-bg {
-    background-image: url(../img/latest-news/news-bg-3.jpg);
-    height: 450px;
-}
-
 .pagination-wrap {
     margin-top: 40px;
 }
@@ -1714,132 +1601,6 @@ p.excerpt {
                 .pagination-wrap ul li a.active {
                     background-color: #F28123;
                 }
-
-.single-artcile-bg {
-    background-size: cover;
-    background-position: center;
-    background-color: #ddd;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-.single-article-text h2 {
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 10px;
-}
-
-.single-article-text p {
-    font-size: 15px;
-    line-height: 1.6;
-    color: #051922;
-}
-
-.comments-list-wrap {
-    margin: 100px 0;
-}
-
-    .comments-list-wrap h3 {
-        font-size: 25px;
-        font-weight: 600;
-        margin-bottom: 50px;
-    }
-
-.comment-template h4 {
-    font-size: 25px;
-    font-weight: 600;
-    margin-bottom: 50px;
-}
-
-.single-comment-body {
-    position: relative;
-}
-
-.comment-user-avater {
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-    .comment-user-avater img {
-        width: 60px;
-        max-width: 60px;
-        border-radius: 50%;
-    }
-
-.comment-text-body {
-    padding-left: 80px;
-    margin-bottom: 40px;
-}
-
-    .comment-text-body h4 {
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-span.comment-date {
-    opacity: 0.5;
-    font-size: 80%;
-    font-weight: 700;
-    margin-left: 5px;
-}
-
-.comment-text-body h4 a {
-    color: #051922;
-    font-size: 80%;
-    margin-left: 10px;
-    border-bottom: 1px solid #aaa;
-}
-
-.single-comment-body.child {
-    margin-left: 75px;
-}
-
-.comment-text-body p {
-    color: #888;
-    line-height: 2;
-    margin: 0;
-}
-
-.comment-template h4 {
-    margin-bottom: 10px;
-}
-
-.comment-template > p {
-    opacity: 0.7;
-    margin-bottom: 30px;
-}
-
-.comment-template form p input[type=text] {
-    border: 1px solid #ddd;
-    width: 49%;
-    padding: 15px;
-    border-radius: 5px;
-    font-size: 15px;
-    color: #051922;
-}
-
-.comment-template form p input[type=email] {
-    border: 1px solid #ddd;
-    width: 49%;
-    padding: 15px;
-    border-radius: 5px;
-    font-size: 15px;
-    color: #051922;
-    margin-left: 10px;
-}
-
-.comment-template form p textarea {
-    border: 1px solid #ddd;
-    padding: 15px;
-    font-size: 15px;
-    color: #051922;
-    border-radius: 5px;
-    height: 250px;
-    resize: none;
-    width: 100%;
-}
 
 .sidebar-section {
     margin-left: 30px;
@@ -2449,7 +2210,7 @@ p.product-price {
         font-weight: 400;
     }
 
-a.cart-btn {
+.btn-orange-circle {
     font-family: 'Poppins', sans-serif;
     display: inline-block;
     background-color: #F28123;
@@ -2457,7 +2218,7 @@ a.cart-btn {
     padding: 10px 20px;
 }
 
-    a.cart-btn i {
+    .btn-orange-circle i {
         margin-right: 5px;
     }
 
@@ -2502,7 +2263,7 @@ input[type="number"] {
     margin-bottom: 15px;
 }
 
-.single-product-form a.cart-btn {
+.single-product-form .btn-orange-circle {
     margin-bottom: 15px;
 }
 
@@ -2815,12 +2576,32 @@ table.order-details {
     }
 
 .btn-outline-white {
-    color: #ff6a00;
-    border-color: #ff6a00;
+    color: #F28123;
+    border-color: #F28123;
 }
 
     .btn-outline-white:hover {
-        background-color: #ff6a00;
-        border-color: #ff6a00;
+        background-color: #F28123;
+        border-color: #F28123;
         color: white;
+    }
+
+.small-orange-text {
+    color: #ff6a00;
+    font-size: 1.25rem;
+}
+
+.card-img-container {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+    .card-img-container img {
+        max-height: 100%;
+        object-fit: contain;
+        padding: 10px;
     }

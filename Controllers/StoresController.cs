@@ -158,6 +158,9 @@ namespace Eshop.Controllers
         public async Task<IActionResult> ProductDetails(int id)
         {
             Product product = await this.repoStores.FindProductAsync(id);
+            Store store = await this.repoStores.FindSimpleStoreAsync(product.StoreId);
+            ViewBag.Store = store;
+
             return View(product);
         }
 
@@ -181,7 +184,7 @@ namespace Eshop.Controllers
 
             if(store == null) {
                 TempData["Message"] = "Create a store before!";
-                return RedirectToAction("Profile", "User");
+                return RedirectToAction("Profile", "Users");
             }
 
             int storeId = store.Id;
@@ -233,7 +236,7 @@ namespace Eshop.Controllers
 
             if (store == null) {
                 TempData["Message"] = "Create a store before!";
-                return RedirectToAction("Profile", "User");
+                return RedirectToAction("Profile", "Users");
             }
 
             Product product = await this.repoStores.FindProductAsync(id);

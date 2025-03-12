@@ -27,9 +27,8 @@
     @if (isOwner)
     {
         <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@Model.Store.Id" class="btn btn-outline-warning">Update store</a>
-        <a asp-controller="Stores" asp-action="ProductCreate" class="btn btn-outline-warning">Update store</a>
+        <a asp-controller="Stores" asp-action="ProductCreate" class="btn btn-outline-warning">Add product</a>
     }
-
 </div>
 
 <!-- Products -->
@@ -55,7 +54,7 @@
                 </div>
             </div>
 
-            <div class="row product-lists">
+@*             <div class="row product-lists">
                 @foreach (Product product in Model.Products)
                 {
                     var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
@@ -69,38 +68,48 @@
                                 <p class="product-price">@product.Price </p>
                             </a>
 
-                            <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn mx-2">
+                            <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="btn-orange-circle mx-2">
                                 <i class="fa-solid fa-eye"></i> See more
                             </a>
-                            <button onclick="addToCart(@product.Id)" class="cart-btn mx-2">
+                            <button onclick="addToCart(@product.Id)" class="btn-orange-circle mx-2">
                                 <i class="fa-solid fa-cart-shopping"></i> Add item
                             </button>
                         </div>
                     </div>
                 }
-            </div>
+            </div> *@
 
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 product-lists">
                 @foreach (Product product in Model.Products)
                 {
                     var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
-                    <div class="col product-card @categoryClasses">
+                    <div class="col-lg-3 col-md-4 col-sm-2 product-card @categoryClasses">
                         <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id">
-                            <div class="card h-100 shadow-sm single-product-item">
-                                <div class="card-img-container p-3">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-img-container p-2">
                                     <img src="~/images/products/@product.Image" class="card-img-top" alt="@product.Name">
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title">@product.Name</h5>
-                                    <p class="card-text price-text fw-bold">@product.Price</p>
-                                    <div class="mt-auto d-flex justify-content-between">
-                                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn">
+                                    <p class="card-text price-text fw-bold orange-text">@product.Price</p>
+                                    <div class="mt-auto d-flex justify-content-center gap-2">
+                                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="btn btn-outline-white">
                                             <i class="fa-solid fa-eye"></i> See more
                                         </a>
-                                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" class="cart-btn">
+                                        <button onclick="addToCart(@product.Id)" class="btn btn-orange mx-2">
                                             <i class="fa-solid fa-cart-shopping"></i> Add item
-                                        </a>
+                                        </button>
                                     </div>
+                                    @if(isOwner){
+                                        <div class="mt-2 d-flex justify-content-center gap-2">
+                                            <a asp-controller="Stores" asp-action="ProductEdit" asp-route-id="@product.Id" class="btn btn-outline-white mx-1">
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit item
+                                            </a>
+                                            <a asp-controller="Stores" asp-action="DeleteEdit" asp-route-id="@product.Id" class="btn btn-orange mx-1">
+                                                <i class="fa-solid fa-trash-can"></i> Delete item
+                                            </a>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </a>
@@ -110,160 +119,7 @@
 
 
             <style>
-                .card-img-container {
-                    height: 200px;
-                    overflow: hidden;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: #f8f9fa;
-                }
 
-                    .card-img-container img {
-                        max-height: 100%;
-                        object-fit: contain;
-                        padding: 10px;
-                    }
-
-                .small-orange-text {
-                    color: #ff6a00;
-                    font-size: 1.25rem;
-                }
-            </style>
-
-            <div class="container">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 product-lists">
-                    @foreach (Product product in Model.Products)
-                    {
-                        var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
-                        <div class="col product-card @categoryClasses">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-img-container">
-                                    <img src="~/images/products/@product.Image" class="card-img-top" alt="@product.Name">
-                                </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">@product.Name</h5>
-                                    <p class="card-text price-text fw-bold">$@product.Price</p>
-                                    <div class="mt-auto d-flex justify-content-between">
-                                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="btn btn-outline-primary">
-                                            <i class="fa-solid fa-eye"></i> See more
-                                        </a>
-                                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" class="btn btn-primary">
-                                            <i class="fa-solid fa-cart-shopping"></i> Add item
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <style>
-                .card-img-container {
-                    height: 200px;
-                    overflow: hidden;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: #f8f9fa;
-                }
-
-                    .card-img-container img {
-                        max-height: 100%;
-                        object-fit: contain;
-                        padding: 10px;
-                    }
-
-                .price-text {
-                    color: #ff6a00;
-                    font-size: 1.25rem;
-                }
-
-                .btn-primary {
-                    background-color: #ff6a00;
-                    border-color: #ff6a00;
-                }
-
-                    .btn-primary:hover {
-                        background-color: #e05e00;
-                        border-color: #e05e00;
-                    }
-
-                .btn-outline-primary {
-                    color: #ff6a00;
-                    border-color: #ff6a00;
-                }
-
-                    .btn-outline-primary:hover {
-                        background-color: #ff6a00;
-                        border-color: #ff6a00;
-                        color: white;
-                    }
-            </style>
-            <div class="container-fluid px-4">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 product-lists">
-                    @foreach (Product product in Model.Products)
-                    {
-                        var categoryClasses = string.Join(" ", product.ProdCats.Select(pc => pc.Category.CategoryName));
-                        <div class="col product-card @categoryClasses">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-img-container">
-                                    <img src="~/images/products/@product.Image" class="card-img-top" alt="@product.Name">
-                                </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">@product.Name</h5>
-                                    <p class="card-text price-text fw-bold">$@product.Price</p>
-                                    <div class="mt-auto d-flex justify-content-center gap-2">
-                                        <a asp-controller="Stores" asp-action="ProductDetails" asp-route-id="@product.Id" class="cart-btn">
-                                            <i class="fa-solid fa-eye"></i> See more
-                                        </a>
-                                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" class="cart-btn">
-                                            <i class="fa-solid fa-cart-shopping"></i> Add item
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <style>
-                .card-img-container {
-                    height: 200px;
-                    overflow: hidden;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: #f8f9fa;
-                }
-
-                    .card-img-container img {
-                        max-height: 100%;
-                        object-fit: contain;
-                        padding: 10px;
-                    }
-
-                .price-text {
-                    color: #ff6a00;
-                    font-size: 1.25rem;
-                }
-
-                .cart-btn {
-                    font-family: 'Poppins', sans-serif;
-                    display: inline-block;
-                    background-color: #F28123;
-                    color: #fff;
-                    padding: 10px 20px;
-                    text-decoration: none;
-                    transition: 0.3s;
-                }
-
-                    .cart-btn:hover {
-                        background-color: #e07016;
-                        color: #fff;
-                    }
             </style>
 
             <div class="row">
