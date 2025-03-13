@@ -27,4 +27,4 @@ namespace Eshop.Models
         public Product Product { get; set; }
     }
 }
-}
+

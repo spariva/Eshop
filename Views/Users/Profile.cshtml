@@ -5,7 +5,7 @@
     // bool hasStore = ViewBag.Store != null;
     // Store store = hasStore ? (Store)ViewBag.Store : null;
     bool hasStore = ViewBag.Store != null;
-    // bool hasPurchases = ViewBag.Store != null;
+    bool hasPurchases = ViewBag.Purchases != null;
     // List<string> purchases = hasPurchases ? (List<string>)ViewBag.Purchases : null;
 }
 
@@ -123,29 +123,29 @@
             </div>
             <div class="card-body p-0">
                 <div class="purchase-history-container" style="height: 300px; overflow-y: auto;">
-                    @if (ViewBag.Purchases != null)
+                    @if (hasPurchases)
                     {
-                        @*                      List<Purchase> purchases = (List<Purchase>)ViewBag.Purchases;
+                        List<Purchase> purchases = (List<Purchase>)ViewBag.Purchases;
                         <div class="list-group list-group-flush">
-                                                        @foreach (var purchase in purchases)
+                            @foreach (var purchase in purchases)
                             {
                                 <div class="list-group-item py-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="mb-0">Order #@purchase.OrderNumber</h6>
-                                            <small class="text-muted">@purchase.PurchaseDate.ToString("MMM dd, yyyy")</small>
+                                            <h6 class="mb-0">Order #@purchase.Id</h6>
+                                            <small class="text-muted">@purchase.CreatedAt.ToString("MMM dd, yyyy")</small>
                                         </div>
-                                        <span class="badge bg-success rounded-pill">$@purchase.Total.ToString("0.00")</span>
+                                        <span class="badge rounded-pill small-orange-text">$@purchase.TotalPrice.ToString("0.00")</span>
                                     </div>
                                     <div class="mt-2 text-truncate small">
-                                        <span class="text-muted">@purchase.ItemCount items</span>
+                                        <span class="text-muted"> items</span>
                                         <a asp-controller="Orders" asp-action="Details" asp-route-id="@purchase.Id" class="ms-2 text-decoration-none">
                                             View Details <i class="bi bi-arrow-right"></i>
                                         </a>
                                     </div>
                                 </div>
                             }
-                        </div> *@
+                        </div>
                     }
                     else
                     {
@@ -165,3 +165,16 @@
 </div>
 
 
+<script>
+    $(document).ready(function () {
+        //Take the url params and check if success value is "true"
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        if(success === "true") {
+            //Show the success alert
+                Swal.fire({
+                    icon: "success",
+                    title: "Purchase done!"});
+        }
+    });
+</script>

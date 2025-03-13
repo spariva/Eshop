@@ -33,4 +33,4 @@ namespace Eshop.Models
         public Purchase Purchase { get; set; }
     }
 }
-}
+

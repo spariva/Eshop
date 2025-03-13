@@ -24,4 +24,4 @@ namespace Eshop.Models
         public Store Store { get; set; }
     }
 }
-}
+

@@ -33,4 +33,4 @@ namespace Eshop.Models
         public List<PurchaseVendorMapping> PurchaseVendorMappings { get; set; } = new List<PurchaseVendorMapping>();
     }
 }
-}
+

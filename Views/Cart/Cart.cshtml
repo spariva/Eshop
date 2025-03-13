@@ -11,7 +11,7 @@
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
                     <h1>Cart</h1>
-                    <p class="h2">@TempData["Mensaje"]</p>
+                    <p class="h4">@TempData["Mensaje"]</p>
                     @if (!string.IsNullOrEmpty(ViewBag.Mensaje))
                     {
                         <p>@ViewBag.Mensaje</p>
@@ -46,6 +46,7 @@
                                             <th scope="col" class="product-name">Name</th>
                                             <th scope="col" class="product-price">Price</th>
                                             <th scope="col" class="product-quantity">Quantity</th>
+                                            <th scope="col" class="product-quantity">Stock</th>
                                             <th scope="col" class="product-total">Total</th>
                                             <th scope="col" class="product-remove"></th>
                                         </tr>
@@ -67,6 +68,7 @@
                                                         <button class="btn btn-outline-secondary border py-1 px-2" type="button" onclick="increaseQuantity(@p.Id)">+</button>
                                                     </div>
                                                 </td>
+                                                <td class="product-name text-center">@p.StockQuantity</td>
                                                 <td class="product-total fw-bold">@((p.Price * quantity).ToString("0.00"))€</td>
                                                 <td class="product-remove">
                                                     <button class="btn btn-sm btn-outline-white remove-item" onclick="removeFromCart(@p.Id)" data-id="@p.Id">

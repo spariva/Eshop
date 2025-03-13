@@ -28,13 +28,9 @@ namespace Eshop.Models
         [Column("PAYMENT_DATE")]
         public DateTime PaymentDate { get; set; } = DateTime.Now;
 
-        // New field for Stripe tracking
-        [Column("PAYMENT_INTENT_ID")]
-        public string PaymentIntentId { get; set; }
-
         // Navigation properties
         public Purchase Purchase { get; set; }
         public User User { get; set; }
     }
 }
-}
+

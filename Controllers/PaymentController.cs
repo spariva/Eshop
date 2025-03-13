@@ -2,36 +2,50 @@
 using Eshop.Models;
 using Eshop.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.DependencyInjection;
 using Stripe;
 using Stripe.Checkout;
-using System.Globalization;
-
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Stripe;
-using Stripe.Checkout;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace Eshop.Controllers
 {
+
     public class PaymentController : Controller
     {
-        private RepositoryStores repo;
+        private RepositoryPayment repoPay;
         private const string CartKey = "CartItems";
+        private const string UserKey = "UserId";
 
-        public PaymentController(RepositoryStores repoStores) {
-            repo = repoStores;
+        public PaymentController(RepositoryPayment repositoryPay) {
+            repoPay = repositoryPay;
         }
 
-        public async Task<IActionResult> CreateCheckoutSession() {
+        #region documentation
+        //Due a technical problem, instead of implementing the webhook, we will simulate the payment flow by manually updating the purchase status in the database.
+        //The payment flow consists of the following steps:
 
+        //3. Controller
+        //The controller handles the payment flow:
+
+        //Checkout: Validates cart items, checks stock, and displays checkout page
+        //InitiatePayment: Creates purchase record and initiates Stripe payment
+        //PaymentSuccess: Processes successful payment after Stripe redirect
+        //PaymentCancel/PaymentError: Handles payment cancellation and errors
+
+        //        The repository implements several methods:
+
+        //ValidateCartItemsAsync: Checks if products exist and have sufficient stock
+        //GetCartProductsAsync: Retrieves full product information for cart items
+        //GroupCartItemsByStoreAsync: Organizes cart items by store for separation of vendor payments
+        //CreatePurchaseAsync: Creates initial purchase record with pending status when checkout begins
+        //ProcessSuccessfulPaymentAsync: Updates purchase after successful payment, creates payment records, and generates store payouts
+        //DecreaseProductStockAsync: Reduces product stock quantities after successful payment
+        //GetPurchaseByStripeSessionIdAsync: Retrieves purchase by Stripe session ID
+        #endregion
+
+        public async Task<IActionResult> CreateCheckoutSession() {
             List<CartItem> cartItems = HttpContext.Session.GetObject<List<CartItem>>(CartKey);
+            //int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
 
             if (cartItems == null || cartItems.Count == 0) {
                 TempData["Mensaje"] = "Your shopping cart is empty!";
@@ -39,8 +53,18 @@ namespace Eshop.Controllers
                 return RedirectToAction("Cart","Cart");
             }
 
+            // Validate cart items and check stock
+            var (isValid, invalidItems) = await this.repoPay.ValidateCartItemsAsync(cartItems);
 
-            List<Models.Product> products = await this.repo.GetCartItemsAsync(cartItems);
+            if (!isValid) {
+                // Return information about invalid items
+                TempData["Mensaje"] = "Some items doesn't have enough Stock! =( ";
+                TempData["InvalidItems"] = invalidItems;
+                return RedirectToAction("Cart", "Cart");
+            }
+
+
+            List<Models.Product> products = await this.repoPay.GetCartProductsAsync(cartItems);
 
             var lineItems = new List<SessionLineItemOptions>();
 
@@ -66,26 +90,84 @@ namespace Eshop.Controllers
             {
                 PaymentIntentData = new Stripe.Checkout.SessionPaymentIntentDataOptions
                 {
-                    TransferGroup = "ORDER100",
+                    TransferGroup = userId.ToString(),
                 },
                 LineItems = lineItems,
                 Mode = "payment",
-                SuccessUrl = "https://localhost:7091/Users/Profile?p=1",
+                SuccessUrl = "https://localhost:7091/Users/Profile?success=true",
                 CancelUrl = "https://localhost:7091/Cart/Cart?fail=true"
             };
             var service = new Stripe.Checkout.SessionService();
             Session session = await service.CreateAsync(options);
 
+
+            var purchase = await this.repoPay.CreatePurchaseAsync(userId, cartItems, session.Id);
+
             return Redirect(session.Url);
         }
 
+        // GET: Payment/PaymentSuccess
+        //[HttpGet]
+        //public async Task<IActionResult> PaymentSuccess() {
+        //    try {
+                
+
+        //        // Process successful payment
+        //        var success = await this.repoPay.ProcessSuccessfulPaymentAsync( );
+
+        //        if (!success) {
+        //            return RedirectToAction("PaymentError", new { message = "Payment could not be processed" });
+        //        }
+
+        //        // Get purchase details for confirmation
+        //        var purchase = await this.repoPay.GetPurchaseByStripeSessionIdAsync(session_id);
+
+        //        // Return success view
+        //        return View(purchase);
+        //    }
+        //    catch (Exception ex) {
+        //        return RedirectToAction("PaymentError", new { message = ex.Message });
+        //    }
+        //}
+
+        // GET: Payment/PaymentCancel
+        [HttpGet]
+        public IActionResult PaymentCancel() {
+            // Payment was canceled by the user
+            return View();
+        }
+
+        // GET: Payment/PaymentError
+        [HttpGet]
+        public IActionResult PaymentError(string message) {
+            ViewBag.ErrorMessage = message;
+            return View();
+        }
+    
+
+
+
+        #region Webhook
         [HttpPost]
         public async Task<IActionResult> Webhook() {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             const string endpointSecret = "whsec_c21";
             try {
+                var stripeEvent = EventUtility.ParseEvent(json);
                 var signatureHeader = Request.Headers["Stripe-Signature"];
-                var stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret);
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret);
+
+                if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded) {
+                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
+                    // Then define and call a method to handle the successful payment intent.
+                    // handlePaymentIntentSucceeded(paymentIntent);
+                }
+                else if (stripeEvent.Type == EventTypes.PaymentMethodAttached) {
+                    var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
+                    // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                    // handlePaymentMethodAttached(paymentMethod);
+                }
 
                 // Handle specific checkout session events using the correct event type strings
                 switch (stripeEvent.Type) {
@@ -323,5 +405,6 @@ namespace Eshop.Controllers
         //        }
         //    }
         //}
+        #endregion
     }
 }

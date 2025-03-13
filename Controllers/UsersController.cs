@@ -10,11 +10,13 @@ namespace Eshop.Controllers
     {
         private RepositoryStores repoStores;
         private RepositoryUsers repoUsers;
-        private const string UserKey = "UserId"; //if I change this, so I have to change it in the UserMenu partialview
+        private RepositoryPayment repoPay;
+        private const string UserKey = "UserId";
 
-        public UsersController(RepositoryStores repoStores, RepositoryUsers repoUsers) {
+        public UsersController(RepositoryStores repoStores, RepositoryUsers repoUsers, RepositoryPayment repoPay) {
             this.repoStores = repoStores;
             this.repoUsers = repoUsers;
+            this.repoPay = repoPay;
         }
 
         public IActionResult Login() {
@@ -49,6 +51,13 @@ namespace Eshop.Controllers
             Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
             ViewBag.Store = store;
+
+            List<Purchase> purchases = await this.repoPay.GetPurchasesByUserIdAsync(userId);
+
+            if (purchases != null) {
+                ViewBag.Purchases = purchases;
+            }
+
 
 
             return View(user);

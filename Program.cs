@@ -22,28 +22,22 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
-    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(2);
-    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(1);
-});
-
 
 builder.Services.AddSingleton<HelperPathProvider>();
 builder.Services.AddSingleton<HelperToolkit>();
 builder.Services.AddSingleton<HelperCriptography>();
 
-//string connectionString =
-//    builder.Configuration.GetConnectionString("SqlClase");
 string connectionString =
-    builder.Configuration.GetConnectionString("SqlCasa");
+    builder.Configuration.GetConnectionString("SqlClase");
+//string connectionString =
+//    builder.Configuration.GetConnectionString("SqlCasa");
 
 builder.Services.AddDbContext<EshopContext>
     (options => options.UseSqlServer(connectionString));
 
 builder.Services.AddTransient<RepositoryUsers>();
 builder.Services.AddTransient<RepositoryStores>();
+builder.Services.AddTransient<RepositoryPayment>();
 
 
 builder.Services.AddSession();
@@ -73,12 +67,6 @@ app.UseRequestLocalization();
 app.UseSession();
 
 app.UseRouting();
-
-app.UseCors(builder => builder
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader());
-
 
 app.UseAuthentication();
 app.UseAuthorization();
