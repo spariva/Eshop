@@ -9,7 +9,7 @@
 
 
 <!-- breadcrumb-section -->
-<div class="breadcrumb-section breadcrumb-bg">
+<div class="breadcrumb-section breadcrumb-bg" style="background-image: url('/images/stores/@store.Image')">
 	<div class="container">
 		<div class="row">
 			<div class="col-lg-8 offset-lg-2 text-center">
@@ -38,12 +38,13 @@
 					<p class="single-product-pricing">@Model.Price</p>
 					<p>@Model.Description</p>
 					<div class="single-product-form">
-						<form action="index.html">
-							<input type="number" placeholder="0">
-						</form>
-						<button onclick="addToCart(@Model.Id)" class="btn btn-orange p-2 mx-2">
-							<i class="fa-solid fa-cart-shopping"></i> Add item
-						</button>
+						@if(Model.StockQuantity < 1){
+							<p class="h3 small-orange-text">Sin stock =(</p>
+						}else{
+							<button onclick="addToCart(@Model.Id)" class="btn btn-orange p-2 mx-2">
+								<i class="fa-solid fa-cart-shopping"></i> Add item
+							</button>
+						}
 						<div class="tag-section">
 							<h4>Tags</h4>
 							<ul>
@@ -56,7 +57,7 @@
 					</div>
 					@if (isOwner)
 					{
-						<div class="mt-2 d-flex justify-content-center gap-2">
+						<div class="mt-2 d-flex justify-content-start gap-2">
 							<a asp-controller="Stores" asp-action="ProductEdit" asp-route-id="@Model.Id" class="btn btn-outline-white mx-1">
 								<i class="fa-solid fa-pen-to-square"></i> Edit item
 							</a>

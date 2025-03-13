@@ -296,41 +296,16 @@ namespace Eshop.Repositories
             return await consulta.ToListAsync();
         }
 
-        //public async Task<CartItem> FindCartItemAsync(int userId, int productId)
-        //{
-        //    var consulta = from datos in this.context.CartItems
-        //                   where datos.UserId == userId && datos.ProductId == productId
-        //                   select datos;
-        //    return await consulta.FirstOrDefaultAsync();
-        //}
-
-        //public async Task<CartItem> AddCartItemAsync(int userId, int productId, int quantity)
-        //{
-        //    CartItem ci = new CartItem
-        //    {
-        //        UserId = userId,
-        //        ProductId = productId,
-        //        Quantity = quantity
-        //    };
-        //    await this.context.CartItems.AddAsync(ci);
-        //    await this.context.SaveChangesAsync();
-        //    return ci;
-        //}
-
-        //public async Task<CartItem> UpdateCartItemAsync(int userId, int productId, int quantity)
-        //{
-        //    CartItem ci = await this.FindCartItemAsync(userId, productId);
-        //    ci.Quantity = quantity;
-        //    await this.context.SaveChangesAsync();
-        //    return ci;
-        //}
-
-        //public async Task DeleteCartItemAsync(int userId, int productId)
-        //{
-        //    CartItem ci = await this.FindCartItemAsync(userId, productId);
-        //    this.context.CartItems.Remove(ci);
-        //    await this.context.SaveChangesAsync();
-        //}
+        public async Task<decimal> CalculateCartSubtotal(List<CartItem> cartItems) {
+            decimal cartSubtotal = 0;
+            foreach (var cartItem in cartItems) {
+                Product product = await this.FindProductAsync(cartItem.Id);
+                if (product != null) {
+                    cartSubtotal += product.Price * cartItem.Quantity;
+                }
+            }
+            return cartSubtotal;
+        }
 
         #endregion
     }

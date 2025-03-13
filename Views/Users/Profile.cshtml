@@ -86,16 +86,16 @@
                             <img src="~/images/stores/@store.Image" alt="@store.Name" class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: cover;" />
                         </div>
                         <div class="d-flex justify-content-center gap-2 mb-3">
-                            <a asp-controller="Stores" asp-action="StoreDetails" asp-route-id="@store.Id" class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-shop"></i> View Store
+                            <a asp-controller="Stores" asp-action="StoreDetails" asp-route-id="@store.Id" class="btn btn-outline-white btn-sm mr-2">
+                                <i class="fa-solid fa-eye"></i> View Store
                             </a>
-                            <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@store.Id" class="btn btn-outline-secondary btn-sm">
-                                <i class="bi bi-pencil me-1"></i> Edit Details
+                            <a asp-controller="Stores" asp-action="StoreEdit" asp-route-id="@store.Id" class="btn btn-outline-secondary btn-sm ml-2">
+                                <i class="fa-solid fa-pencil"></i> Edit Details
                             </a>
                         </div>
-                        <button class="btn btn-dark btn-sm w-100">
+                        <a asp-controller="Stores" asp-action="StripeDashboard" asp-route-id="@store.Id" class="btn btn-orange w-100">
                             <i class="bi bi-credit-card me-1"></i> My Stripe Account
-                        </button>
+                        </a>
                     </div>
                 }
                 else
@@ -153,9 +153,7 @@
                             <i class="bi bi-cart-x fs-1 text-muted"></i>
                             <h5 class="mt-3">No purchases yet</h5>
                             <p class="text-muted">Your purchase history will appear here</p>
-                            <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-primary btn-sm mt-2">
-                                <i class="bi bi-shop me-1"></i> Browse Shop
-                            </a>
+                            <a asp-action="Stores" asp-controller="Stores" class="btn btn-orange p-2 btn-sm mt-2"><i class="bi bi-shop me-1"></i>Back to shopping</a>
                         </div>
                     }
                 </div>

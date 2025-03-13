@@ -1,205 +1,155 @@
 ﻿//using Eshop.Models;
+//using Eshop.Repositories;
+//using Microsoft.AspNetCore.Authorization;
 //using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore.Migrations;
-//using Stripe.Checkout;
-//using Stripe.Climate;
-//using Stripe;
+//using System;
+//using System.Collections.Generic;
+//using System.Security.Claims;
+//using System.Threading.Tasks;
+//using static Eshop.Repositories.PaymentController;
 
-//namespace Eshop.Helpers
+//namespace Eshop.Controllers
 //{
-
-//public class StripeConnectCheckoutService
-//{
-//    private readonly string _stripeSecretKey;
-//    private readonly IStripeClient _stripeClient;
-//    private readonly IStoreRepository _storeRepository;
-//    private readonly IOrderRepository _orderRepository;
-
-//    public StripeConnectCheckoutService(
-//        IConfiguration configuration,
-//        IStoreRepository storeRepository,
-//        IOrderRepository orderRepository)
+//    [Authorize]
+//    public class PaymentController : Controller
 //    {
-//        _stripeSecretKey = configuration["Stripe:SecretKey"];
-//        _stripeClient = new StripeClient(_stripeSecretKey);
-//        _storeRepository = storeRepository;
-//        _orderRepository = orderRepository;
-//    }
+//        private readonly IPaymentRepository paymentRepository;
 
-//    public async Task<string> CreateCheckoutSession(List<CartItem> cartItems, string customerId)
-//    {
-//         Group items by store
-//        var itemsByStore = cartItems.GroupBy(i => i.StoreId);
+//        public PaymentController(IPaymentRepository paymentRepository) {
+//            this.paymentRepository = paymentRepository;
+//        }
 
-//        var lineItems = new List<SessionLineItemOptions>();
-//        var paymentIntentData = new SessionPaymentIntentDataOptions
-//        {
-//             This enables automatic transfers to connected accounts
-//            TransferData = new SessionPaymentIntentDataTransferDataOptions
-//            {
-//                 Destination will be set later in the process
-//            },
-//            ApplicationFeeAmount = 0 // Will set per-store fees
-//        };
+//        // GET: Payment/Checkout
+//        [HttpGet]
+//        public async Task<IActionResult> Checkout(List<CartItem> cartItems) {
+//            try {
+//                // Get current user ID
+//                int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-//         Create line items for all products
-//        foreach (var item in cartItems)
-//        {
-//            lineItems.Add(new SessionLineItemOptions
-//            {
-//                PriceData = new SessionLineItemPriceDataOptions
+//                // Validate cart items and check stock
+//                var (isValid, invalidItems) = await paymentRepository.ValidateCartItemsAsync(cartItems);
+
+//                if (!isValid) {
+//                    // Return information about invalid items
+//                    return BadRequest(new { Message = "Some items in your cart are not available", InvalidItems = invalidItems });
+//                }
+
+//                // Get products for display
+//                var products = await paymentRepository.GetCartProductsAsync(cartItems);
+
+//                // Group items by store for display
+//                var itemsByStore = await paymentRepository.GroupCartItemsByStoreAsync(cartItems);
+
+//                // Store cart items in TempData (serialize to JSON or use session)
+//                TempData["CartItems"] = System.Text.Json.JsonSerializer.Serialize(cartItems);
+
+//                // Return view with checkout information
+//                return View(new CheckoutViewModel
 //                {
-//                    UnitAmount = (long)(item.Price * 100), // Convert to cents
-//                    Currency = "usd",
-//                    ProductData = new SessionLineItemPriceDataProductDataOptions
-//                    {
-//                        Name = item.Name,
-//                        Description = item.Description
-//                    }
-//                },
-//                Quantity = item.Quantity
-//            });
-//        }
-
-//         Calculate amounts per store for transfer_group
-//        var transferGroup = Guid.NewGuid().ToString();
-//        var orderDetails = new List<OrderTransfer>();
-
-//        foreach (var storeGroup in itemsByStore)
-//        {
-//            var storeId = storeGroup.Key;
-//            var store = await _storeRepository.GetStoreById(storeId);
-//            var storeAmount = storeGroup.Sum(item => item.Price * item.Quantity);
-
-//             Store transfer info to be processed after checkout
-//            orderDetails.Add(new OrderTransfer
-//            {
-//                StoreId = storeId,
-//                Amount = storeAmount,
-//                StripeAccountId = store.StripeConnectId
-//            });
-//        }
-
-//         Create checkout session
-//        var options = new SessionCreateOptions
-//        {
-//            PaymentMethodTypes = new List<string> { "card" },
-//            LineItems = lineItems,
-//            Mode = "payment",
-//            SuccessUrl = "https://yourdomain.com/checkout/success?session_id={CHECKOUT_SESSION_ID}",
-//            CancelUrl = "https://yourdomain.com/checkout/cancel",
-//            Metadata = new Dictionary<string, string>
-//            {
-//                { "CustomerId", customerId },
-//                { "TransferGroup", transferGroup }
-//            },
-//            PaymentIntentData = new SessionPaymentIntentDataOptions
-//            {
-//                TransferGroup = transferGroup
+//                    CartItems = cartItems,
+//                    Products = products,
+//                    ItemsByStore = itemsByStore
+//                });
 //            }
-//        };
-
-//        var service = new SessionService(_stripeClient);
-//        var session = await service.CreateAsync(options);
-
-//         Store order info for processing
-//        var order = new Order
-//        {
-//            CustomerId = customerId,
-//            SessionId = session.Id,
-//            TotalAmount = cartItems.Sum(i => i.Price * i.Quantity),
-//            Status = OrderStatus.Pending,
-//            CreatedAt = DateTime.UtcNow,
-//            TransferGroup = transferGroup,
-//            Transfers = orderDetails
-//        };
-
-//        await _orderRepository.CreateOrder(order);
-
-//        return session.Url;
-//    }
-
-//     Called by webhook after successful payment
-//    public async Task ProcessPaymentTransfers(string paymentIntentId, string transferGroup)
-//    {
-//        var order = await _orderRepository.GetOrderByTransferGroup(transferGroup);
-
-//         Process each store's portion of the payment
-//        foreach (var transfer in order.Transfers)
-//        {
-//             Your platform fee (e.g., 10%)
-//            var platformFeePercent = 0.1m;
-//            var amount = transfer.Amount;
-//            var platformFee = (long)(amount * platformFeePercent * 100); // Convert to cents
-//            var transferAmount = (long)(amount * 100); // Convert to cents
-
-//            var transferOptions = new TransferCreateOptions
-//            {
-//                Amount = transferAmount - platformFee,
-//                Currency = "usd",
-//                Destination = transfer.StripeAccountId,
-//                TransferGroup = transferGroup,
-//                SourceTransaction = paymentIntentId,
-//                Description = $"Transfer for order #{order.Id}"
-//            };
-
-//            var transferService = new TransferService(_stripeClient);
-//            var transferResult = await transferService.CreateAsync(transferOptions);
-
-//            transfer.Transferred = true;
-//            transfer.TransferId = transferResult.Id;
+//            catch (Exception ex) {
+//                return StatusCode(500, new { Message = "An error occurred during checkout", Error = ex.Message });
+//            }
 //        }
 
-//         Update order status
-//        order.Status = OrderStatus.Paid;
-//        await _orderRepository.UpdateOrder(order);
-//    }
-//}
+//        // POST: Payment/InitiatePayment
+//        [HttpPost]
+//        public async Task<IActionResult> InitiatePayment() {
+//            try {
+//                // Get current user ID
+//                int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-// Webhook handler to process the payment completion
-//[ApiController]
-//[Route("api/webhook")]
-//public class StripeWebhookController : ControllerBase
-//{
-//    private readonly string _webhookSecret;
-//    private readonly StripeConnectCheckoutService _checkoutService;
+//                // Get cart items from TempData
+//                var cartItemsJson = TempData["CartItems"] as string;
+//                var cartItems = System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartItemsJson);
 
-//    public StripeWebhookController(
-//        IConfiguration configuration,
-//        StripeConnectCheckoutService checkoutService)
-//    {
-//        _webhookSecret = configuration["Stripe:WebhookSecret"];
-//        _checkoutService = checkoutService;
-//    }
+//                // Revalidate cart items and check stock
+//                var (isValid, invalidItems) = await paymentRepository.ValidateCartItemsAsync(cartItems);
 
-//    [HttpPost]
-//    public async Task<IActionResult> Index()
-//    {
-//        var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+//                if (!isValid) {
+//                    return BadRequest(new { Message = "Some items in your cart are not available", InvalidItems = invalidItems });
+//                }
 
-//        try
-//        {
-//            var stripeEvent = EventUtility.ConstructEvent(
-//                json,
-//                Request.Headers["Stripe-Signature"],
-//                _webhookSecret
-//            );
+//                // Create a Stripe checkout session (simplified - actual Stripe integration would be needed)
+//                string stripeSessionId = "sess_" + Guid.NewGuid().ToString("N");
 
-//             Handle payment completion
-//            if (stripeEvent.Type == Events.PaymentIntentSucceeded)
-//            {
-//                var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-//                await _checkoutService.ProcessPaymentTransfers(
-//                    paymentIntent.Id,
-//                    paymentIntent.TransferGroup
+//                // Create purchase record in database
+//                var purchase = await paymentRepository.CreatePurchaseAsync(userId, cartItems, stripeSessionId);
+
+//                // Redirect to Stripe checkout page (simplified)
+//                // In a real implementation, you would redirect to the Stripe checkout URL
+//                string successUrl = Url.Action("PaymentSuccess", "Payment", new { session_id = stripeSessionId }, Request.Scheme);
+//                string cancelUrl = Url.Action("PaymentCancel", "Payment", null, Request.Scheme);
+
+//                // Return information needed for frontend to redirect to Stripe
+//                return Json(new
+//                {
+//                    StripeSessionId = stripeSessionId,
+//                    SuccessUrl = successUrl,
+//                    CancelUrl = cancelUrl
+//                });
+//            }
+//            catch (Exception ex) {
+//                return StatusCode(500, new { Message = "An error occurred during payment initiation", Error = ex.Message });
+//            }
+//        }
+
+//        // GET: Payment/PaymentSuccess
+//        [HttpGet]
+//        public async Task<IActionResult> PaymentSuccess(string session_id, string payment_intent = null, string payment_intent_client_secret = null) {
+//            try {
+//                // Get transaction details from Stripe (simplified)
+//                string transactionId = "txn_" + Guid.NewGuid().ToString("N");
+//                string paymentIntentId = payment_intent ?? "pi_" + Guid.NewGuid().ToString("N");
+//                string paymentMethod = "card";
+
+//                // Process successful payment
+//                var success = await paymentRepository.ProcessSuccessfulPaymentAsync(
+//                    session_id,
+//                    transactionId,
+//                    paymentIntentId,
+//                    paymentMethod
 //                );
-//            }
 
-//            return Ok();
+//                if (!success) {
+//                    return RedirectToAction("PaymentError", new { message = "Payment could not be processed" });
+//                }
+
+//                // Get purchase details for confirmation
+//                var purchase = await paymentRepository.GetPurchaseByStripeSessionIdAsync(session_id);
+
+//                // Return success view
+//                return View(purchase);
+//            }
+//            catch (Exception ex) {
+//                return RedirectToAction("PaymentError", new { message = ex.Message });
+//            }
 //        }
-//        catch (Exception e)
-//        {
-//            return BadRequest();
+
+//        // GET: Payment/PaymentCancel
+//        [HttpGet]
+//        public IActionResult PaymentCancel() {
+//            // Payment was canceled by the user
+//            return View();
+//        }
+
+//        // GET: Payment/PaymentError
+//        [HttpGet]
+//        public IActionResult PaymentError(string message) {
+//            ViewBag.ErrorMessage = message;
+//            return View();
 //        }
 //    }
-//}
+
+//    // ViewModel for checkout page
+//    public class CheckoutViewModel
+//    {
+//        public List<CartItem> CartItems { get; set; }
+//        public List<Product> Products { get; set; }
+//        public Dictionary<int, List<(Product Product, int Quantity)>> ItemsByStore { get; set; }
+//    }
+////}

@@ -17,20 +17,6 @@ namespace Eshop.Controllers
             repo = repoStores;
         }
 
-        private async Task<decimal> CalculateCartSubtotal(List<CartItem> cartItems)
-        {
-            decimal cartSubtotal = 0;
-            foreach (var cartItem in cartItems)
-            {
-                Product product = await this.repo.FindProductAsync(cartItem.Id);
-                if (product != null)
-                {
-                    cartSubtotal += product.Price * cartItem.Quantity;
-                }
-            }
-            return cartSubtotal;
-        }
-
         public async Task<IActionResult> Cart()
         {
             List<CartItem> cartItems = HttpContext.Session.GetObject<List<CartItem>>(CartKey);
@@ -93,7 +79,7 @@ namespace Eshop.Controllers
 
 
             // Calculate cart totals
-            decimal cartSubtotal = await this.CalculateCartSubtotal(cartItems);
+            decimal cartSubtotal = await this.repo.CalculateCartSubtotal(cartItems);
             decimal shipping = cartItems.Count > 0 && cartSubtotal < Offer ? Shipping : 0;
             decimal cartTotal = cartSubtotal + shipping;
 
@@ -131,7 +117,7 @@ namespace Eshop.Controllers
             }
 
             // Calculate cart totals
-            decimal cartSubtotal = await this.CalculateCartSubtotal(cartItems);
+            decimal cartSubtotal = await this.repo.CalculateCartSubtotal(cartItems);
             // Shipping is the const but if the cart is empty the shipping is 0
             decimal shipping = cartItems.Count > 0 && cartSubtotal < Offer ? Shipping : 0;
             decimal cartTotal = cartSubtotal + shipping;

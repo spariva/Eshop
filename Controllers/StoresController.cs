@@ -107,21 +107,6 @@ namespace Eshop.Controllers
 
                 // Redirect to Stripe onboarding
                 return Redirect(accountLink.Url);
-
-                //var connectedAccountId = accountLinkPostBody.Account;
-                //var service = new AccountLinkService();
-
-                //AccountLink accountLink = service.Create(
-                //    new AccountLinkCreateOptions
-                //    {
-                //        Account = connectedAccountId,
-                //        ReturnUrl = $"http://localhost/return/{connectedAccountId}",
-                //        RefreshUrl = $"http://localhost/refresh/{connectedAccountId}",
-                //        Type = "account_onboarding",
-                //    }
-                //);
-
-                //return Json(new { url = accountLink.Url });
             }
             catch (Exception ex) {
                 Console.Write("An error occurred when calling the Stripe API to create an account:  " + ex.Message);
@@ -172,6 +157,21 @@ namespace Eshop.Controllers
             });
 
             return Redirect(accountLink.Url);
+        }
+
+        public async Task<IActionResult> StripeDashboard(int id) {
+
+            Store store = await this.repoStores.FindSimpleStoreAsync(id);
+            int userId = HttpContext.Session.GetObject<int>(UserKey);
+
+
+            if (userId != store.UserId) {
+                return RedirectToAction("Home", "Home");
+            }
+
+            var service = new AccountLoginLinkService();
+            var dashboardLink = service.Create(store.StripeId);
+            return Redirect(dashboardLink.Url);
         }
 
 

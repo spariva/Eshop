@@ -22,6 +22,13 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(2);
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(1);
+});
+
 
 builder.Services.AddSingleton<HelperPathProvider>();
 builder.Services.AddSingleton<HelperToolkit>();
@@ -57,14 +64,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//UseHttpsRedirection() should be early to ensure all requests are secure
-//UseStaticFiles() comes early to efficiently serve static content without processing
-//UseRequestLocalization() should be after static files but before other processing
-//UseSession() should be set up before routing since components might need session data
-//UseRouting() needs to come before authorization so the routing system can determine which endpoint will be executed
-//UseAuthorization() depends on routing information to apply the correct authorization rules
-//MapStaticAssets() and other endpoint mapping should be at the end
-
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
@@ -75,6 +74,13 @@ app.UseSession();
 
 app.UseRouting();
 
+app.UseCors(builder => builder
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
