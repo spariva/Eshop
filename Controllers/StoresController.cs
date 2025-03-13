@@ -53,6 +53,7 @@ namespace Eshop.Controllers
             return View();
         }
 
+        #region Stripe
         [HttpPost]
         public async Task<IActionResult> StoreCreate(string name, string email, IFormFile image, string category) {
             //Create route and save image
@@ -150,7 +151,7 @@ namespace Eshop.Controllers
 
         [HttpGet("Stores/RefreshOnboarding/{id}")]
         public async Task<IActionResult> RefreshOnboarding(int id) {
-            var store = await this.repoStores.FindSimpleStoreAsync(id);
+            Store store = await this.repoStores.FindSimpleStoreAsync(id);
             if (store == null) {
                 return NotFound();
             }
@@ -173,6 +174,9 @@ namespace Eshop.Controllers
             return Redirect(accountLink.Url);
         }
 
+
+
+        #endregion
 
         public async Task<IActionResult> StoreEdit(int id) {
             int userId = HttpContext.Session.GetObject<int>(UserKey);

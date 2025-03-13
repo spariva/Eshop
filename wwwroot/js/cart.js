@@ -37,9 +37,11 @@ function updateCartItem(id, quantity) {
         data: { id: id, quantity: quantity },
         success: function (result) {
             if (result.success) {
-                $(`tr[data-id="${id}"] .product-total`).text('$' + result.subtotal.toFixed(2));
-                $('#subtotal-amount').text('$' + result.cartSubtotal.toFixed(2));
-                $('#total-amount').text('$' + result.cartTotal.toFixed(2));
+                $(`tr[data-id="${id}"] .product-total`).text(result.subtotal.toFixed(2) + '€');
+                $('#subtotal-amount').text(result.cartSubtotal.toFixed(2) + '€');
+                $('#total-amount').text(result.cartTotal.toFixed(2) + '€');
+                $('#shipping-amount').text(result.shipping.toFixed(2) + '€');
+
                 console.log("Cart updated successfully");
             }
         },
@@ -57,11 +59,14 @@ function removeFromCart(id) {
         success: function (result) {
             if (result.success) {
                 $(`tr[data-id="${id}"]`).remove();
-                $('#subtotal-amount').text('$' + result.cartSubtotal.toFixed(2));
-                $('#total-amount').text('$' + result.cartTotal.toFixed(2));
+                $('#subtotal-amount').text(result.cartSubtotal.toFixed(2) + '€');
+                $('#total-amount').text(result.cartTotal.toFixed(2) + '€');
+                $('#shipping-amount').text(result.shipping.toFixed(2) + '€');
+
 
                 if (result.itemCount === 0) {
                     $('.table-responsive').hide();
+                    $('#checkout-button').hide();
                     $('.card-body').append('<div id="empty-cart-message" class="p-4 text-center"><h4>Your cart is empty</h4></div>');
                 }
                 console.log("Item removed successfully");

@@ -55,7 +55,7 @@
                                             <tr class="align-middle" data-id="@p.Id">
                                                 <td class="product-image"><img src="~/images/products/@p.Image" alt="@p.Name" class="img-fluid rounded" style="max-width: 120px; min-width: 120px;"></td>
                                                 <td class="product-name fw-bold">@p.Name</td>
-                                                <td class="product-price">$@p.Price.ToString("0.00")</td>
+                                                <td class="product-price">@p.Price.ToString("0.00") €</td>
                                                 <td class="product-quantity">
                                                     <div class="input-group input-group-sm" style="max-width: 120px;">
                                                         @{
@@ -66,7 +66,7 @@
                                                         <button class="btn btn-outline-secondary border py-1 px-2" type="button" onclick="increaseQuantity(@p.Id)">+</button>
                                                     </div>
                                                 </td>
-                                                <td class="product-total fw-bold">$@((p.Price * quantity).ToString("0.00"))</td>
+                                                <td class="product-total fw-bold">@((p.Price * quantity).ToString("0.00"))€</td>
                                                 <td class="product-remove">
                                                     <button class="btn btn-sm btn-outline-white remove-item" onclick="removeFromCart(@p.Id)" data-id="@p.Id">
                                                         <i class="fa-solid fa-trash-can"></i>
@@ -99,29 +99,29 @@
                                         }
                                     }
                                 }
-                                decimal shipping = Model.Any() ? 10 : 0;
+                                decimal shipping = Model.Count > 0 || subtotal < 75 ? 10 : 0;
                                 decimal total = subtotal + shipping;
                             }
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="fw-bold">Subtotal:</span>
-                                <span class="fw-bold" id="subtotal-amount">@subtotal.ToString("0.00")</span>
+                                <span class="fw-bold" id="subtotal-amount">@subtotal.ToString("0.00") €</span>
                             </div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="fw-bold">Shipping:</span>
-                                <span class="fw-bold" id="shipping-amount">@shipping.ToString("0.00")</span>
+                                <span class="fw-bold" id="shipping-amount">@shipping.ToString("0.00") €</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between mb-4">
                                 <span class="fw-bold fs-5">Total:</span>
-                                <span class="fw-bold fs-5" id="total-amount">@total.ToString("0.00")</span>
+                                <span class="fw-bold fs-5" id="total-amount">@total.ToString("0.00") €</span>
                             </div>
                             <div class="d-grid gap-3">
                                 <a asp-action="Stores" asp-controller="Stores" class="btn btn-lg btn-outline-secondary mr-3">
                                     <i class="fas fa-arrow-left"></i>Shop more
                                 </a>
-                                <button type="button" class="btn btn-lg btn-orange ml-3" id="checkout-button">
+                                <a asp-action="CreateCheckoutSession" asp-controller="Payment" class="btn btn-lg btn-orange ml-3" id="checkout-button">
                                     <i class="fas fa-shopping-cart"></i>Check Out
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -130,6 +130,7 @@
         </div>
     </div>
 }
+
 
 <!-- end cart -->
 

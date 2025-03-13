@@ -10,6 +10,7 @@ namespace Eshop.Controllers
         private RepositoryStores repo;
         private const string CartKey = "CartItems";
         private const decimal Shipping = 10;
+        private const decimal Offer = 75;
 
         public CartController(RepositoryStores repoStores)
         {
@@ -81,32 +82,11 @@ namespace Eshop.Controllers
             return Json(new { success = true });
         }
 
-        //public IActionResult RemoveFromCart(int id)
-        //{
-        //    List<CartItem> cartItems = HttpContext.Session.GetObject<List<CartItem>>(CartKey);
-
-
-        //    var item = cartItems.FirstOrDefault(c => c.Id == id);
-        //    if (item == null) {
-        //        return Json(new { success = false });
-        //    }
-
-        //    cartItems.Remove(item);
-        //    HttpContext.Session.SetObject(CartKey, cartItems);
-
-        //    return Json(new { success = true });
-        //}
-
 
         [HttpGet]
         public async Task<IActionResult> RemoveFromCart(int id)
         {
             List<CartItem> cartItems = HttpContext.Session.GetObject<List<CartItem>>(CartKey);
-
-            if (cartItems == null)
-            {
-                return Json(new { success = false });
-            }
 
             cartItems.RemoveAll(c => c.Id == id);
             HttpContext.Session.SetObject(CartKey, cartItems);
@@ -114,11 +94,13 @@ namespace Eshop.Controllers
 
             // Calculate cart totals
             decimal cartSubtotal = await this.CalculateCartSubtotal(cartItems);
-            decimal cartTotal = cartSubtotal + Shipping;
+            decimal shipping = cartItems.Count > 0 && cartSubtotal < Offer ? Shipping : 0;
+            decimal cartTotal = cartSubtotal + shipping;
 
             return Json(new
             {
                 success = true,
+                shipping = shipping,
                 cartSubtotal = cartSubtotal,
                 cartTotal = cartTotal,
                 itemCount = cartItems.Count
@@ -151,7 +133,7 @@ namespace Eshop.Controllers
             // Calculate cart totals
             decimal cartSubtotal = await this.CalculateCartSubtotal(cartItems);
             // Shipping is the const but if the cart is empty the shipping is 0
-            decimal shipping = cartItems.Any() ? Shipping : 0;
+            decimal shipping = cartItems.Count > 0 && cartSubtotal < Offer ? Shipping : 0;
             decimal cartTotal = cartSubtotal + shipping;
             decimal subtotal = product.Price * quantity;
 
@@ -159,6 +141,7 @@ namespace Eshop.Controllers
             return Json(new
             {
                 success = true,
+                shipping = shipping,
                 subtotal = subtotal,
                 cartSubtotal = cartSubtotal,
                 cartTotal = cartTotal
