@@ -3,6 +3,8 @@ using Eshop.Models;
 using Eshop.Repositories;
 using Eshop.Extensions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace Eshop.Controllers
 {
@@ -19,14 +21,38 @@ namespace Eshop.Controllers
             this.repoPay = repoPay;
         }
 
-        public IActionResult Login() {
-            HttpContext.Session.SetObject(UserKey, 3);
-            return RedirectToAction("Profile");
 
+        public IActionResult Login() {
+            return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Login(string email, string password) {
+            User user = await this.repoUsers.LoginAsync(email, password);
+            if (user == null) {
+                ViewBag.Error = "Invalid credentials";
+                return View();
+            }
+
+            HttpContext.Session.SetObject(UserKey, user.Id);
+            return RedirectToAction("Profile", "Users");
+        }
+
+
         public IActionResult Register() {
-            return RedirectToAction("Home", "Home");
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(string name, string email, string password, string confirmpassword, string telephone, string address) {
+            User user = await this.repoUsers.InsertUserAsync(name, email, password, telephone, address);
+            if (user == null) {
+                ViewBag.Error = "Invalid credentials";
+                return View();
+            }
+
+            HttpContext.Session.SetObject(UserKey, user.Id);
+            return RedirectToAction("Profile", "Users");
         }
 
         public IActionResult Logout() {
@@ -57,8 +83,6 @@ namespace Eshop.Controllers
             if (purchases != null) {
                 ViewBag.Purchases = purchases;
             }
-
-
 
             return View(user);
         }

@@ -1,5 +1,171 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿<partial name="_Breadcrumb" />
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="tab-content" id="authTabContent">
+                <div class="tab-pane fade show active" id="login-form" role="tabpanel" aria-labelledby="login-tab">
+                    <div class="card shadow rounded-3 border-0">
+                        <div class="card-header bg-dark text-white rounded-top py-3">
+                            <h4 class="card-title mb-0 text-white text-center">Welcome Back</h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <p class="orange-text">@ViewBag.Error</p>
+                            <form method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="text-danger mb-3"></div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-bold text-muted small">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fa-solid fa-envelope"></i>
+                                        </span>
+                                        <input type="email" id="LoginEmail" name="email" class="form-control" placeholder="name@example.com" required />
+                                    </div>
+                                    <span class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label for="password" class="form-label fw-bold text-muted small">Password</label>
+                                        @* <a href="#" class="small text-decoration-none">Forgot Password?</a> *@
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </span>
+                                        <input type="password" id="LoginPassword" name="password" class="form-control" placeholder="Enter your password" required />
+                                    </div>
+                                    <span class="text-danger small"></span>
+                                </div>
+                                <button type="submit" class="btn btn-orange w-100 py-2 mb-3">
+                                    <i class="fa-solid fa-sign-in-alt me-2"></i>Login
+                                </button>
+                                <div class="text-center">
+                                    <a asp-controller="Users" asp-action="Register">
+                                        <span class="text-muted small orange-text">Don't have an account?</span>
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // Toggle password visibility
+            const toggleButtons = document.querySelectorAll('.password-toggle');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+            
+            // Simple password strength indicator (for demo purposes)
+            const passwordInput = document.getElementById('Password');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const value = this.value;
+                    const bars = document.querySelectorAll('.password-strength-bar');
+                    
+                    // Reset all bars
+                    bars.forEach(bar => {
+                        bar.className = 'password-strength-bar';
+                    });
+                    
+                    if (value.length > 0) {
+                        bars[0].classList.add('active');
+                    }
+                    
+                    if (value.length >= 8) {
+                        bars[1].classList.add('active');
+                    }
+                    
+                    if (/[A-Z]/.test(value) && /[a-z]/.test(value)) {
+                        bars[2].classList.add('active');
+                    }
+                    
+                    if (/[0-9]/.test(value) && /[^A-Za-z0-9]/.test(value)) {
+                        bars[3].classList.add('active');
+                    }
+                });
+            }
+        });
+    </script>
+    
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<style>
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .input-group-text {
+        border-right: none;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+    }
+
+        .input-group .form-control:focus {
+            box-shadow: none;
+            border-color: #ced4da;
+        }
+
+    .input-group-text i {
+        color: #6c757d;
+    }
+
+/* Password strength indicator */
+.password-strength {
+    display: flex;
+    flex-direction: column;
+}
+
+.password-strength-bar {
+    height: 4px;
+    background-color: #e9ecef;
+    flex: 1;
+    border-radius: 2px;
+}
+
+.password-strength-bar.active {
+    background-color: #0d6efd;
+}
+
+
+/* Form inputs animation */
+.form-control {
+    transition: all 0.3s ease;
+}
+
+/* Password toggle button */
+.password-toggle {
+    cursor: pointer;
+}
+
+/* Auth features section */
+.auth-features {
+    max-width: 320px;
+}
+
+</style>

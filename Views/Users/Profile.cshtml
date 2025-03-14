@@ -126,7 +126,7 @@
                     @if (hasPurchases)
                     {
                         List<Purchase> purchases = (List<Purchase>)ViewBag.Purchases;
-                        <div class="list-group list-group-flush">
+                        <div class="list-group list-group-flush overflow-auto" style="max-height: 400px;">
                             @foreach (var purchase in purchases)
                             {
                                 <div class="list-group-item py-3">
@@ -135,7 +135,7 @@
                                             <h6 class="mb-0">Order #@purchase.Id</h6>
                                             <small class="text-muted">@purchase.CreatedAt.ToString("MMM dd, yyyy")</small>
                                         </div>
-                                        <span class="badge rounded-pill small-orange-text">$@purchase.TotalPrice.ToString("0.00")</span>
+                                        <span class="badge rounded-pill small-orange-text">@purchase.TotalPrice.ToString("0.00")€</span>
                                     </div>
                                     <div class="mt-2 text-truncate small">
                                         <span class="text-muted"> items</span>

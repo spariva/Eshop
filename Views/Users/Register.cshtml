@@ -1,0 +1,235 @@
+﻿<partial name="_Breadcrumb" />
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="tab-content" id="authTabContent">
+                <div class="tab-pane fade show active" id="register-form" role="tabpanel" aria-labelledby="register-tab">
+                    <div class="card shadow rounded-3 border-0">
+                        <div class="card-header bg-dark text-white rounded-top py-3">
+                            <h4 class="card-title mb-0 text-white text-center">Create an Account</h4>
+                            <p class="orange-text">@ViewBag.Error</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="text-danger mb-3"></div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="FirstName" class="form-label fw-bold text-muted small">First Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">
+                                                <i class="fa-solid fa-user"></i>
+                                            </span>
+                                            <input type="text" id="FirstName" name="name" class="form-control" placeholder="John" required />
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label fw-bold text-muted small">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">
+                                                <i class="fa-solid fa-envelope"></i>
+                                            </span>
+                                            <input type="email" id="email" name="email" class="form-control" placeholder="name@example.com" required />
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label  class="form-label fw-bold text-muted small">Telephone</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">
+                                                <i class="fa-solid fa-user"></i>
+                                            </span>
+                                            <input type="text" id="telephone" name="telephone" class="form-control" placeholder="123456789" required />
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label fw-bold text-muted small">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">
+                                                <i class="fa-solid fa-envelope"></i>
+                                            </span>
+                                            <input type="text" id="address" name="address" class="form-control" placeholder="Beans 21" required />
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="Password" class="form-label fw-bold text-muted small">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </span>
+                                        <input type="password" id="Password" name="password" class="form-control" placeholder="Create a strong password" required />
+                                    </div>
+                                    <span class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ConfirmPassword" class="form-label fw-bold text-muted small">Confirm Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </span>
+                                        <input type="password" id="ConfirmPassword" name="confirmpassword" class="form-control" placeholder="Confirm your password" required />
+                                    </div>
+                                    <span class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="AgreeTerms" name="AgreeTerms" required />
+                                    <label class="form-check-label small" for="AgreeTerms">
+                                        I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-orange w-100 py-2 mb-3">
+                                    <i class="fa-solid fa-user-plus me-2"></i>Create Account
+                                </button>
+                                <div class="text-center">
+                                    <a asp-controller="Users" asp-action="Login">
+                                        <span class="text-muted small orange-text">Already have an account?</span>
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Toggle password visibility
+            const toggleButtons = document.querySelectorAll('.password-toggle');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    const icon = this.querySelector('i');
+
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+            //compare 2 passwords:
+            // Compare passwords
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                const password = document.getElementById('Password').value;
+                const confirmPassword = document.getElementById('ConfirmPassword').value;
+                const errorMessage = document.querySelector('.text-danger.mb-3');
+
+                if (password !== confirmPassword) {
+                    event.preventDefault();
+                    errorMessage.textContent = 'Passwords do not match.';
+                } else {
+                    errorMessage.textContent = '';
+                }
+            });
+
+            // Simple password strength indicator (for demo purposes)
+            // const passwordInput = document.getElementById('Password');
+            // if (passwordInput) {
+            //     passwordInput.addEventListener('input', function() {
+            //         const value = this.value;
+            //         const bars = document.querySelectorAll('.password-strength-bar');
+
+            //         // Reset all bars
+            //         bars.forEach(bar => {
+            //             bar.className = 'password-strength-bar';
+            //         });
+
+            //         if (value.length > 0) {
+            //             bars[0].classList.add('active');
+            //         }
+
+            //         if (value.length >= 8) {
+            //             bars[1].classList.add('active');
+            //         }
+
+            //         if (/[A-Z]/.test(value) && /[a-z]/.test(value)) {
+            //             bars[2].classList.add('active');
+            //         }
+
+            //         if (/[0-9]/.test(value) && /[^A-Za-z0-9]/.test(value)) {
+            //             bars[3].classList.add('active');
+            //         }
+            //     });
+            // }
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .input-group-text {
+        border-right: none;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+    }
+
+        .input-group .form-control:focus {
+            box-shadow: none;
+            border-color: #ced4da;
+        }
+
+    .input-group-text i {
+        color: #6c757d;
+    }
+
+    /* Password strength indicator */
+    .password-strength {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .password-strength-bar {
+        height: 4px;
+        background-color: #e9ecef;
+        flex: 1;
+        border-radius: 2px;
+    }
+
+        .password-strength-bar.active {
+            background-color: #0d6efd;
+        }
+
+
+    /* Form inputs animation */
+    .form-control {
+        transition: all 0.3s ease;
+    }
+
+    /* Password toggle button */
+    .password-toggle {
+        cursor: pointer;
+    }
+
+    /* Auth features section */
+    .auth-features {
+        max-width: 320px;
+    }
+</style>

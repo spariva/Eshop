@@ -46,6 +46,9 @@ namespace Eshop.Controllers
             List<CartItem> cartItems = HttpContext.Session.GetObject<List<CartItem>>(CartKey);
             //int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             int userId = HttpContext.Session.GetObject<int>(UserKey);
+            if (userId == null || userId == 0) {
+                return RedirectToAction("Login", "Users");
+            }
 
             if (cartItems == null || cartItems.Count == 0) {
                 TempData["Mensaje"] = "Your shopping cart is empty!";

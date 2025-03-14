@@ -42,12 +42,15 @@ namespace Eshop.Controllers
 
         public async Task<IActionResult> StoreCreate() {
             int userId = HttpContext.Session.GetObject<int>(UserKey);
+            if (userId == null || userId == 0) {
+                return RedirectToAction("Login", "Users");
+            }
 
             Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
             if (storeSession != null) {
                 TempData["Message"] = "You already have a store";
-                return RedirectToAction("Users", "Profile");
+                return RedirectToAction("Profile", "Users");
             }
 
             return View();

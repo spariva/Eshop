@@ -1,8 +1,8 @@
 INSERT INTO USERS (USER_ID, NAME, EMAIL, PASSWORD_HASH, SALT, TELEPHONE, ADDRESS)
 VALUES
-(1, 'Alice Smith', 'alice.smith@example.com', 0x1234, 'salt123', '123456789', '123 Main St'),
-(2, 'Bob Johnson', 'bob.johnson@example.com', 0x5678, 'salt456', '987654321', '456 Elm St'),
-(3, 'Maki', 'maki@example.com', 0x5679, 'salt234', '937654321', 'lope rueda');
+(1, 'Alice Smith', 'alice@example.com', 0x1234, 'ali123', '123456789', '123 Main St'),
+(2, 'Bob Johnson', 'bob@example.com', 0x5678, 'bob123', '987654321', '456 Elm St'),
+(3, 'Maki', 'maki@example.com', 0x5679, 'maki1234', '937654321', 'calle Random');
 
 
 INSERT INTO STORES (STORE_ID, STORE_NAME, EMAIL, IMAGE, CATEGORY, USER_ID)
@@ -16,8 +16,8 @@ VALUES
 INSERT INTO PRODUCTS_CATEGORIES (CATEGORY_ID, CATEGORY_NAME)
 VALUES
 (1, 'Earrings'),
-(2, 'Winter Clothing'),
-(3, 'Zines');
+(2, 'Clothing'),
+(3, 'Cubos');
 
 
 INSERT INTO PRODUCTS (PRODUCT_ID, STORE_ID, PRODUCT_NAME, DESCRIPTION, IMAGE, PRICE, STOCK_QUANTITY)

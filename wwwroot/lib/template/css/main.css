@@ -1349,7 +1349,7 @@ a.mobile-show.search-bar-icon {
 
 ----------------------------------------------------------------------------- */
 .hero-bg {
-    background-image: url(../img/hero-bg.jpg);
+    background-image: url(/images/general/market.jpg);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -1381,7 +1381,6 @@ html, body {
     width: 100%;
     height: 100%;
     content: "";
-    background-color: #07212e;
     z-index: -1;
     opacity: 0.6;
 }
