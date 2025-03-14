@@ -80,11 +80,25 @@ namespace Eshop.Controllers
 
             List<Purchase> purchases = await this.repoPay.GetPurchasesByUserIdAsync(userId);
 
-            if (purchases != null) {
+            if (purchases.Count != 0) {
                 ViewBag.Purchases = purchases;
             }
 
             return View(user);
+        }
+
+        public async Task<IActionResult> PurchaseDetails(int id) {
+            Purchase purchase = await this.repoPay.GetPurchaseByIdAsync(id);
+            if (purchase == null) {
+                TempData["Error"] = "Purchase not found";
+                return RedirectToAction("Profile", "Users");
+            }
+
+            foreach(PurchaseItem item in purchase.PurchaseItems) {
+                item.Product = await this.repoStores.FindProductAsync(item.ProductId);
+            }
+
+            return View(purchase);
         }
 
     }

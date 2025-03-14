@@ -108,7 +108,7 @@ namespace Eshop.Repositories
                 // Create purchase items
                 foreach (var item in cartItems) {
                     var product = products.First(p => p.Id == item.Id);
-                    
+
                     var purchaseItem = new PurchaseItem
                     {
                         Id = maxIdPitems + contador,
@@ -282,6 +282,15 @@ namespace Eshop.Repositories
             return await this.context.Purchases
                 .Where(p => p.UserId == userId)
                 .ToListAsync();
+        }
+
+
+        public async Task<Purchase> GetPurchaseByIdAsync(int purchaseId) {
+            return await this.context.Purchases
+                .Where(p => p.Id == purchaseId)
+                .Include(p => p.PurchaseItems)
+                .ThenInclude(pi => pi.Product)
+                .FirstOrDefaultAsync();
         }
     }
 }
