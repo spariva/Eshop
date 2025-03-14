@@ -1,54 +1,80 @@
 ﻿@model Eshop.Models.Purchase
-
 @{
-    ViewData["Title"] = "PurchaseDetails";
+    ViewData["Title"] = "Purchase Details";
 }
 
 <partial name="_Breadcrumb" />
 
-
 <div class="container py-4">
-    <h4>Purchase</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TotalPrice)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TotalPrice)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PaymentStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PaymentStatus)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StripeSessionId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StripeSessionId)
-        </dd>
-        @foreach (PurchaseItem item in Model.PurchaseItems){
-            <ul class="list-group">
-                <li class="list-group-item">@item.Product.Name</li>
-                <li class="list-group-item">@item.Product.Price eur</li>
-                <li class="list-group-item">Cantidad: @item.Quantity</li>
-                <li class="list-group-item"><img src="~/images/products/@item.Product.Image" alt="@item.Product.Name" width="250px" /></li>
-            </ul>
-        }
-    </dl>
-</div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 text-white">Purchase Details</h4>
+            <span class="badge bg-warning text-dark">@Html.DisplayFor(model => model.PaymentStatus)</span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Order #@Html.DisplayFor(model => model.Id)</strong></p>
+                    <p class="text-muted mb-1">Placed on @Html.DisplayFor(model => model.CreatedAt)</p>
+                    <p class="text-muted">Transaction ID: @Html.DisplayFor(model => model.StripeSessionId)</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h3 class="text-primary mb-0">@Html.DisplayFor(model => model.TotalPrice)€</h3>
+                </div>
+            </div>
 
+            <h5 class="border-bottom pb-2 mb-3">Items</h5>
+
+            @foreach (var item in Model.PurchaseItems)
+            {
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-md-3">
+                            <img src="~/images/products/@item.Product.Image" alt="@item.Product.Name"
+                                 class="img-fluid rounded-start" style="max-height: 150px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">@item.Product.Name</h5>
+                                    <h5 class="text-primary">@item.Product.Price€</h5>
+                                </div>
+                                <p class="card-text">Quantity: @item.Quantity</p>
+                                <p class="card-text"><small class="text-muted">Subtotal: @(item.Product.Price * item.Quantity)€</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <a href="@Url.Action("Index", "Purchases")" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Purchases
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Order Summary</h5>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>@Model.TotalPrice€</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span>Free</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span><strong>Total:</strong></span>
+                                <span><strong>@Model.TotalPrice€</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
