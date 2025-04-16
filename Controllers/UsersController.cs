@@ -28,6 +28,7 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password) {
             User user = await this.repoUsers.LoginAsync(email, password);
             if (user == null) {
@@ -59,6 +60,7 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(string name, string email, string password, string confirmpassword, string telephone, string address) {
             User user = await this.repoUsers.InsertUserAsync(name, email, password, telephone, address);
             if (user == null) {

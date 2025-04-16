@@ -6,7 +6,9 @@ using Eshop.Extensions;
 using Stripe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Product = Eshop.Models.Product; //To avoid ambiguity with Eshop.Models.Product and Stripe.Product
+using Product = Eshop.Models.Product;
+using Eshop.Filters; //To avoid ambiguity with Eshop.Models.Product and Stripe.Product
+using System.Security.Claims;
 
 namespace Eshop.Controllers
 {
@@ -40,11 +42,9 @@ namespace Eshop.Controllers
             return View(storeView);
         }
 
+        [AuthorizeUser]
         public async Task<IActionResult> StoreCreate() {
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
-            if (userId == null || userId == 0) {
-                return RedirectToAction("Login", "Users");
-            }
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
@@ -58,6 +58,8 @@ namespace Eshop.Controllers
 
         #region Stripe
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuthorizeUser]
         public async Task<IActionResult> StoreCreate(string name, string email, IFormFile image, string category) {
             //Create route and save image
             string fileName = image.FileName;
@@ -68,7 +70,7 @@ namespace Eshop.Controllers
                 await image.CopyToAsync(stream);
             }
 
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             // Create Stripe connected account
             try {
@@ -126,10 +128,8 @@ namespace Eshop.Controllers
             }
 
             // Verify this user owns the store
-            //if (store.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier)) {
-            //    return Forbid();
-            //}
-            if (store.UserId != HttpContext.Session.GetObject<int>(UserKey)) {
+            if (store.UserId != int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+            {
                 return Forbid();
             }
 
@@ -145,7 +145,8 @@ namespace Eshop.Controllers
             }
 
             // Verify this user owns the store
-            if (store.UserId != HttpContext.Session.GetObject<int>(UserKey)) {
+            if (store.UserId != int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+            {
                 return Forbid();
             }
 
@@ -162,10 +163,11 @@ namespace Eshop.Controllers
             return Redirect(accountLink.Url);
         }
 
+        [AuthorizeUser]
         public async Task<IActionResult> StripeDashboard(int id) {
 
             Store store = await this.repoStores.FindSimpleStoreAsync(id);
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
 
             if (userId != store.UserId) {
@@ -182,7 +184,7 @@ namespace Eshop.Controllers
         #endregion
 
         public async Task<IActionResult> StoreEdit(int id) {
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
@@ -196,6 +198,7 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> StoreEdit(int id, string name, string email, IFormFile image, string oldimage, string category) {
             try {
                 //Update image
@@ -228,7 +231,7 @@ namespace Eshop.Controllers
         }
 
         public async Task<IActionResult> StoreDelete(int id) {
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             Store storeSession = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
@@ -258,6 +261,7 @@ namespace Eshop.Controllers
             return View(product);
         }
 
+        [AuthorizeUser]
         public async Task<IActionResult> ProductCreate() {
             List<Category> categories = await this.repoStores.GetAllCategoriesAsync();
             ViewBag.Productcategories = categories.Select(c => new SelectListItem
@@ -270,8 +274,10 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
+        [AuthorizeUser]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProductCreate(string name, string description, IFormFile image, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories) {
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
             if (store == null) {
@@ -317,8 +323,9 @@ namespace Eshop.Controllers
             return View();
         }
 
+        [AuthorizeUser]
         public async Task<IActionResult> ProductEdit(int id) {
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
             if (store == null) {
@@ -344,6 +351,8 @@ namespace Eshop.Controllers
         }
 
         [HttpPost]
+        [AuthorizeUser]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProductEdit(int id, string name, string description, IFormFile image, string oldimage, decimal price, int stockQuantity, List<int> selectedCategories, string newCategories) {
             if (!string.IsNullOrEmpty(newCategories)) {
                 var newCategoryNames = newCategories.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToUpper()).ToList();
@@ -372,11 +381,12 @@ namespace Eshop.Controllers
         }
 
         //First I find the product to get the id, so I pass the Product to not call twice the database
+        [AuthorizeUser]
         public async Task<IActionResult> ProductDelete(int id) {
             Product p = await this.repoStores.FindProductAsync(id);
             int storeId = p.StoreId;
 
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             Store store = await this.repoUsers.FindStoreByUserIdAsync(userId);
 
             if (store == null) {

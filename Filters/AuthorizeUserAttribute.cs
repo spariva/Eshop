@@ -27,7 +27,7 @@ namespace Eshop.Filters
             provider.SaveTempData(context.HttpContext, TempData);
 
             if (!user.Identity.IsAuthenticated) {
-                context.Result = this.GetRoute("Auth", "Login");
+                context.Result = this.GetRoute("Users", "Login");
             }
         }
 

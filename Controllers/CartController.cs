@@ -5,7 +5,7 @@ using Eshop.Extensions;
 
 namespace Eshop.Controllers
 {
-    public class CartController : Controller
+    public class CartController: Controller
     {
         private RepositoryStores repo;
         private const string CartKey = "CartItems";
@@ -23,7 +23,7 @@ namespace Eshop.Controllers
 
             if (cartItems == null)
             {
-                ViewBag.Mensaje = "Your shopping cart is empty!";
+                ViewBag.Mensaje = "Your shopping cart is empty!";   
                 return View();
             }
             else if (cartItems.Count == 0)

@@ -1,4 +1,5 @@
 ﻿using Eshop.Extensions;
+using Eshop.Filters;
 using Eshop.Models;
 using Eshop.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,6 @@ namespace Eshop.Controllers
     {
         private RepositoryPayment repoPay;
         private const string CartKey = "CartItems";
-        private const string UserKey = "UserId";
 
         public PaymentController(RepositoryPayment repositoryPay) {
             repoPay = repositoryPay;
@@ -42,11 +42,12 @@ namespace Eshop.Controllers
         //GetPurchaseByStripeSessionIdAsync: Retrieves purchase by Stripe session ID
         #endregion
 
+        [AuthorizeUser]
         public async Task<IActionResult> CreateCheckoutSession() {
             List<CartItem> cartItems = HttpContext.Session.GetObject<List<CartItem>>(CartKey);
-            //int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
-            if (userId == null || userId == 0) {
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (userId == null || userId == 0)
+            {
                 return RedirectToAction("Login", "Users");
             }
 
