@@ -2,9 +2,10 @@
 using Eshop.Models;
 using Eshop.Repositories;
 using Eshop.Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using Eshop.Filters;
 
 namespace Eshop.Controllers
 {
@@ -34,8 +35,22 @@ namespace Eshop.Controllers
                 return View();
             }
 
-            HttpContext.Session.SetObject(UserKey, user.Id);
-            return RedirectToAction("Profile", "Users");
+            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+            Claim claimID = new Claim(ClaimTypes.NameIdentifier, user.Id.ToString());
+            Claim claimEmail = new Claim(ClaimTypes.Name, user.Email);
+            Claim claimNombre = new Claim("Nombre", user.Name);
+
+            identity.AddClaim(claimID);
+            identity.AddClaim(claimEmail);
+            identity.AddClaim(claimNombre);
+
+            ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
+
+            string controller = TempData["controller"]?.ToString() ?? "Users";
+            string action = TempData["action"]?.ToString() ?? "Profile";
+
+            return RedirectToAction(action, controller);
         }
 
 
@@ -55,14 +70,15 @@ namespace Eshop.Controllers
             return RedirectToAction("Profile", "Users");
         }
 
-        public IActionResult Logout() {
-            HttpContext.Session.Remove(UserKey);
+        public async Task<IActionResult> Logout() {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Home", "Home");
         }
 
 
+        [AuthorizeUser]
         public async Task<IActionResult> Profile() {
-            int userId = HttpContext.Session.GetObject<int>(UserKey);
+            int userId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
             if (userId == 0) {
                 return RedirectToAction("Home", "Home");

@@ -1,14 +1,10 @@
-﻿@{
-    int userId = Context.Session.GetObject<int>("UserId");
-}
-
-@if (userId == 0)
-{
-    <a asp-controller="Users" asp-action="Login">Login</a>
-    <a asp-controller="Users" asp-action="Register">Register</a>
-}
-else
+﻿@if (Context.User.Identity.IsAuthenticated)
 {
     <a asp-controller="Users" asp-action="Profile"><i class="fa-solid fa-circle-user"></i></a>
     <a asp-controller="Users" asp-action="LogOut"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+}
+else
+{
+    <a asp-controller="Users" asp-action="Login">Login</a>
+    <a asp-controller="Users" asp-action="Register">Register</a>
 }

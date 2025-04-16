@@ -20,6 +20,7 @@ namespace Eshop.Repositories
                            select datos;
 
             List<User> users = await consulta.ToListAsync();
+            //return await this.context.Users.ToListAsync();
             return users;
         }
 
@@ -28,6 +29,7 @@ namespace Eshop.Repositories
             var consulta = from datos in this.context.Users
                            where datos.Id == id
                            select datos;
+            //return await this.context.Users.FirstOrDefaultAsync(x=>x.Id ==id);
 
             User user = await consulta.FirstOrDefaultAsync();
 
