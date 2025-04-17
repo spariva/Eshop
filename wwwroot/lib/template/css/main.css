@@ -544,6 +544,7 @@ ul.navbar-nav li.nav-item a.nav-link, ul.navbar-nav li.nav-item.active a.nav-lin
     z-index: 999;
     width: 100%;
     padding: 25px 0;
+    max-height: 98px;
 }
 
     .top-header-area.white ul.navbar-nav li.nav-item a.nav-link, .top-header-area.white ul.navbar-nav li.nav-item.active a.nav-link {
